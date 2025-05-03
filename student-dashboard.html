@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TutorPal - Student Dashboard</title>
+    <link rel="stylesheet" href="styles/student-dashboard-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+    <link rel="stylesheet" href="styles/calendar-style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img width="100" height="100" src="https://img.icons8.com/bubbles/100/training.png" alt="training"/>
+                <h2>TutorPal</h2>
+            </div>
+            <nav>
+              <ul>
+                <li class="active" data-tab="dashboard" onclick="showTab('dashboard')">
+                  <a href="#"><i class="fas fa-home"></i> Dashboard</a>
+                </li>
+                <li data-tab="courses" onclick="showTab('courses')">
+                  <a href="#"><i class="fas fa-book"></i> My Courses</a>
+                </li>
+                <li data-tab="schedule" onclick="showTab('schedule')">
+                  <a href="#"><i class="fas fa-calendar-alt"></i> Schedule</a>
+                </li>
+                <li data-tab="messages" onclick="showTab('messages')">
+                  <a href="#"><i class="fas fa-comments"></i> Messages</a>
+                </li>
+                <li>
+                  <a href="#"><i class="fa-solid fa-calculator"></i> Predicate Calculator</a>
+                </li>
+                <li>
+                  <a href="#"><i class="fas fa-cog"></i> Settings</a>
+                </li>
+              </ul>
+
+            </nav>
+            <div class="sidebar-footer">
+                <a href="index.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="search-bar">
+                    <input id="keyword" type="text" placeholder="Search...">
+                    <button onclick="handleSearch()"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="user-profile">
+                    <span>Welcome, <strong>Student Name</strong></span>
+                    <img width="29" height="29" src="https://img.icons8.com/material-rounded/24/user-male-circle.png" alt="user-male-circle"/>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="content-wrapper">
+                <!-- Dashboard Tab -->
+                <div class="tab-content active" id="dashboard-tab">
+                    <section class="dashboard-cards">
+                        <div class="card" onclick="showTab('courses')">
+                            <div class="card-icon blue">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <h3>Active Courses</h3>
+                            <p id="number-of-courses"></p>
+                        </div>
+                        <div class="card" onclick="showTab('schedule')">
+                            <div class="card-icon orange">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <h3>Upcoming Sessions</h3>
+                            <p id="number-of-meetings"></p>
+                        </div>
+                        <div class="card" onclick="showTab('messages')">
+                            <div class="card-icon purple">
+                                <i class="fas fa-comment-dots"></i>
+                            </div>
+                            <h3>Unread Messages</h3>
+                            <p id="unread-messages"></p>
+                        </div>
+                    </section>
+
+                    <section class="recent-activities">
+                        <h2><i class="fas fa-history"></i> Recent Activities</h2>
+                        <div id="activity-list" class="activity-list">
+
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Courses Tab -->
+                <div class="tab-content" id="courses-tab">
+                    <section class="courses-section">
+                        <h2><i class="fas fa-book"></i> My Courses</h2>
+                        <div id="course-list" class="course-list"></div>
+                    </section>
+                </div>
+
+                <!-- Schedule Tab -->
+                <div class="tab-content" id="schedule-tab">
+                    <section class="schedule-section">
+                        <h2><i class="fas fa-calendar-alt"></i> My Schedule</h2>
+                        <div class="calendar-controls">
+                            <button id="add-event-btn"><i class="fas fa-plus"></i> Add Event</button>
+                        </div>
+                        <div id="calendar-container">
+                          <div id="calendar-header">
+                            <button onclick="changeMonth(-1)">&#8592;</button>
+                            <span id="month-year"></span>
+                            <button onclick="changeMonth(1)">&#8594;</button>
+                          </div>
+                          <table id="calendar">
+                            <thead>
+                              <tr>
+                                <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th>
+                                <th>Thu</th><th>Fri</th><th>Sat</th>
+                              </tr>
+                            </thead>
+                            <tbody id="calendar-body"></tbody>
+                          </table>
+                        </div>
+                        <div id="event-modal" class="modal">
+                          <div class="modal-content">
+                            <span class="close" id="close-modal">&times;</span>
+                            <h3>Add New Event</h3>
+                            <input type="text" id="event-name" placeholder="Event Name" required />
+                            <input type="date" id="event-date" required />
+                            <textarea id="event-description" placeholder="Event Description"></textarea>
+                            <button id="save-event-btn">Save Event</button>
+                          </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Messages Tab -->
+                <div class="tab-content" id="messages-tab">
+                    <section class="messages-section">
+                        <h2><i class="fas fa-comments"></i> Messages</h2>
+                        <div class="messages-container">
+                            <div class="conversation-list">
+                                <div class="conversation active">
+                                    <div class="conversation-avatar">
+                                        <img src="https://via.placeholder.com/40" alt="Tutor">
+                                    </div>
+                                    <div class="conversation-details">
+                                        <h4>Prof. Smith (Mathematics)</h4>
+                                        <p>About tomorrow's session...</p>
+                                        <small>10:30 AM</small>
+                                    </div>
+                                </div>
+                                <div class="conversation">
+                                    <div class="conversation-avatar">
+                                        <img src="https://via.placeholder.com/40" alt="Tutor">
+                                    </div>
+                                    <div class="conversation-details">
+                                        <h4>Dr. Johnson (Physics)</h4>
+                                        <p>Your lab report feedback...</p>
+                                        <small>Yesterday</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="message-view">
+                                <div class="message-header">
+                                    <h3>Prof. Smith</h3>
+                                    <p>Mathematics Tutor</p>
+                                </div>
+                                <div class="message-thread">
+                                    <div class="message received">
+                                        <p>Hi there, about tomorrow's session, can we move it to 2pm instead of 1pm?</p>
+                                        <small>10:30 AM</small>
+                                    </div>
+                                    <div class="message sent">
+                                        <p>Yes that works for me. See you then!</p>
+                                        <small>10:32 AM</small>
+                                    </div>
+                                </div>
+                                <div class="message-compose">
+                                    <input type="text" placeholder="Type your message...">
+                                    <button><i class="fas fa-paper-plane"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Event Modal -->
+    <div class="modal" id="event-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Add New Event</h3>
+            <form id="event-form">
+                <div class="form-group">
+                    <label for="event-title">Event Title</label>
+                    <input type="text" id="event-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="event-date">Date</label>
+                    <input type="date" id="event-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="event-time">Time</label>
+                    <input type="time" id="event-time" required>
+                </div>
+                <button type="submit" class="btn">Save Event</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="scripts/dashboard-script.js"></script>
+    <script type="module">
+  // Import necessary Firebase SDK modules
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+
+  import {
+    getFirestore,
+    collection,
+    query,
+    where,
+    getDocs,
+    getCountFromServer
+  } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDKxS5yJU-6KiOs_fVO03tXoPC6sLFbnJU",
+    authDomain: "tutorpal-98679.firebaseapp.com",
+    projectId: "tutorpal-98679",
+    storageBucket: "tutorpal-98679.firebasestorage.app",
+    messagingSenderId: "473172390647",
+    appId: "1:473172390647:web:04d7cb1d550a91dc8059f2",
+    measurementId: "G-538MQ597GM"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
+
+  const moduleRef = collection(db, "Modules");
+  const meetingsRef = collection(db, "meetings");
+  const messagesRef = collection(db, "Messages");
+  const exercisesRef = collection(db, "Exercises");
+  const tutorsRef = collection(db, "Tutors")
+
+  //count courses, messages and unread messages
+  getCountFromServer(moduleRef).then((snapshot) => {
+    document.getElementById('number-of-courses').textContent = snapshot.data().count;
+  });
+  getCountFromServer(meetingsRef).then((snapshot) => {
+    document.getElementById('number-of-meetings').textContent = snapshot.data().count;
+  });
+
+
+  const unreadMessagesRef = query(messagesRef, where("read", "==", false));
+  getCountFromServer(unreadMessagesRef).then((snapshot) => {
+    document.getElementById('unread-messages').textContent =  snapshot.data().count;
+  });
+
+  //fetch and display all notifications
+  Promise.all([
+  getDocs(messagesRef),
+  getDocs(meetingsRef),
+  getDocs(exercisesRef)
+]).then(([messagesSnapshot, meetingsSnapshot, exercisesSnapshot]) => {
+  const activityContainer = document.getElementById('activity-list');
+  activityContainer.innerHTML = '';  // Clear existing activities
+
+  const notificationsArr = [];
+
+//fetch messages
+  messagesSnapshot.forEach(doc => {
+    const data = doc.data();
+    notificationsArr.push({
+      message: data.message,
+      timestamp: data["upload-date"].seconds,
+      formattedTime: formatTimestamp(data["upload-date"]),
+      type: 'message'
+    });
+  });
+
+//fetch meetings
+  meetingsSnapshot.forEach(doc => {
+    const data = doc.data();
+    notificationsArr.push({
+      message: `Meeting: ${data["meeting-name"]}<br>
+      Description: ${data["meeting-description"]}<br>
+      Date: ${formatTimestamp(data["meeting-date"])}<br>
+      Link: <a href=${data["meeting-link"]}>Join</a>`,
+      timestamp: data["upload-date"].seconds,
+      formattedTime: formatTimestamp(data["upload-date"]),
+      type: 'meeting'
+    });
+  });
+
+//fetch exercises
+  exercisesSnapshot.forEach(doc => {
+    const data = doc.data();
+    notificationsArr.push({
+      message: `Exercise: ${data["exercise-name"]}`,
+      timestamp: data["upload-date"].seconds,
+      formattedTime: formatTimestamp(data["upload-date"]),
+      type: 'exercise'
+    });
+  });
+
+  notificationsArr.sort((a, b) => b.timestamp - a.timestamp);
+
+  notificationsArr.forEach(item => {
+    const activityItem = document.createElement('div');
+    let notificationIcon = "";
+//add messages to html page
+    if (item.type === 'message') {
+      notificationIcon = `<i class="fa-solid fa-envelope"></i>`;
+    } else if (item.type === 'meeting') {
+      notificationIcon = `<i class="fas fa-book"></i>`;
+    } else if (item.type === 'exercise') {
+      notificationIcon = `<i class="fa-solid fa-pen"></i>`;
+    }
+
+    activityItem.className = 'activity-item';
+    activityItem.innerHTML = `
+      <div class="activity-icon">
+        ${notificationIcon}
+      </div>
+      <div class="activity-details">
+        <p>${item.message}</p>
+        <small>${item.formattedTime}</small>
+      </div>
+    `;
+    activityContainer.appendChild(activityItem);
+  });
+});
+
+//fetch Courses
+Promise.all([
+  getDocs(moduleRef),
+  getDocs(tutorsRef)
+]).then(([moduleSnapshot, tutorSnapshot]) => {
+  const courseListContainer = document.getElementById("course-list");
+  courseListContainer.innerHTML = "";
+
+  const tutors = tutorSnapshot.docs.map(doc => doc.data());
+
+  moduleSnapshot.forEach((doc) => {
+    const data = doc.data();
+    const moduleName = data["module-code"];
+    let consultationNeed = data["consultation-needed"] ? "Yes" : "No";
+
+    const tutor = tutors.find(t => t["module-code"] === moduleName);
+    const tutorNames = tutor ? tutor["name"] + " " + tutor["surname"] : "Unassigned";
+
+    const courseCard = document.createElement("div");
+    courseCard.className = "course-card";
+
+    courseCard.innerHTML = `
+      <div class="course-header">
+        <h3>${data["module-name"]}</h3>
+        <span class="course-code">${data["module-code"]}</span>
+      </div>
+      <div class="course-modules">
+        <h4>Details:</h4>
+        <ul>
+          <li>Performance: ${data.performance}</li>
+          <li>Current-Predicate: ${data["current-predicate"]}</li>
+          <li>Consultation Needed: ${consultationNeed}</li>
+        </ul>
+      </div>
+      <div class="course-tutor">
+        <p>Tutor: ${tutor ? tutorNames : "Unassigned"}
+        ${tutor ? `<a href="mailto:${tutor.email}?subject=feedback">email me</a>` : ""}</p>
+      </div>
+    `;
+
+    courseListContainer.appendChild(courseCard);
+  });
+});
+
+  function formatTimestamp(timestamp) {
+    return timestamp.toDate().toLocaleString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  }
+
+
+  </script>
+<script src="scripts/calendar-script.js" charset="utf-8"></script>
+</body>
+</html>

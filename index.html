@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TutorPal - Student Login</title>
+    <link rel="stylesheet" href="styles/login-style.css">
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <div class="login-header">
+            <img src="https://www.tut.ac.za/images/logo.png" alt="TUT Logo" class="logo">
+            <h1>TutorPal</h1>
+            <h2>Student Login</h2>
+        </div>
+
+        <form id="student-login-form">
+            <div class="login-form-group">
+                <label for="student-number">Student Number</label>
+                <input type="text" id="student-number" placeholder="Enter your student number" required>
+            </div>
+
+            <div class="login-form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+
+            <div class="login-form-options">
+                <label class="remember-me">
+                    <input type="checkbox"> Remember me
+                </label>
+                <a href="#" class="forgot-password">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+        <div class="login-footer">
+            <p>Need help? Contact <a href="mailto:231240942@tut4life.ac.za">Admin</a></p>
+            <p class="copyright">&copy; TutorPal</p>
+        </div>
+    </div>
+    <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDKxS5yJU-6KiOs_fVO03tXoPC6sLFbnJU",
+      authDomain: "tutorpal-98679.firebaseapp.com",
+      projectId: "tutorpal-98679",
+      storageBucket: "tutorpal-98679.firebasestorage.app",
+      messagingSenderId: "473172390647",
+      appId: "1:473172390647:web:04d7cb1d550a91dc8059f2",
+      measurementId: "G-538MQ597GM"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
+
+    async function checkStudentExistace(event) {
+      event.preventDefault();
+
+      const studentNumber = document.getElementById("student-number").value;
+      const docRef = doc(db, "Student", studentNumber);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        alert("Student exists");
+        window.location.href = "student-dashboard.html";
+      } else {
+        alert("Student does not exist");
+      }
+    }
+
+    document.getElementById("student-login-form").addEventListener("submit", checkStudentExistace);
+</script>
+</body>
+</html>
