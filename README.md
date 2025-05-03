@@ -2,7 +2,7 @@
 
 A web platform that connects tutors with students. Built with Javascript and Firebase for a fast, modern experience.
 
-#🚀 Features
+# 🚀 Features
 🔐 Firebase Authentication (Login, Register, Email Verification)
 📄 Document Uploads and Downloads
 👤 Separate Dashboards for Tutors, Admin & Students
