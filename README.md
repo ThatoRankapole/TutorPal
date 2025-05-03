@@ -1,4 +1,4 @@
-🌐 TutorPal
+# 🌐 TutorPal
 
 A web platform that connects tutors with students. Built with Javascript and Firebase for a fast, modern experience.
 
