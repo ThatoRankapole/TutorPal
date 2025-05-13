@@ -267,6 +267,7 @@ body {
 .activity-icon {
     width: 40px;
     height: 40px;
+    padding: 20px;
     border-radius: 50%;
     background-color: rgba(0, 51, 160, 0.1);
     display: flex;
@@ -522,18 +523,6 @@ body {
     border-radius: 18px;
     margin-bottom: 10px;
     font-size: 0.9rem;
-}
-
-.message.received {
-    background-color: white;
-    border: 1px solid #eee;
-    margin-right: auto;
-}
-
-.message.sent {
-    background-color: var(--tut-blue);
-    color: white;
-    margin-left: auto;
 }
 
 .message small {

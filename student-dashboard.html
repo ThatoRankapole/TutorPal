@@ -125,6 +125,7 @@
                             <tbody id="calendar-body"></tbody>
                           </table>
                         </div>
+                        <!--Add Event Tab-->
                         <div id="event-modal" class="modal">
                           <div class="modal-content">
                             <span class="close" id="close-modal">&times;</span>
@@ -146,22 +147,12 @@
                             <div class="conversation-list">
                                 <div class="conversation active">
                                     <div class="conversation-avatar">
-                                        <img src="https://via.placeholder.com/40" alt="Tutor">
+                                        <i class="fa-solid fa-envelope"></i>
                                     </div>
                                     <div class="conversation-details">
-                                        <h4>Prof. Smith (Mathematics)</h4>
-                                        <p>About tomorrow's session...</p>
-                                        <small>10:30 AM</small>
-                                    </div>
-                                </div>
-                                <div class="conversation">
-                                    <div class="conversation-avatar">
-                                        <img src="https://via.placeholder.com/40" alt="Tutor">
-                                    </div>
-                                    <div class="conversation-details">
-                                        <h4>Dr. Johnson (Physics)</h4>
-                                        <p>Your lab report feedback...</p>
-                                        <small>Yesterday</small>
+                                        <h4 id="tutor-message-name">Prof. Smith (Mathematics)</h4>
+                                        <p id="tutor-message-preview">About tomorrow's session...</p>
+                                        <small id="tutor-message-time">10:30 AM</small>
                                     </div>
                                 </div>
                             </div>
@@ -171,18 +162,7 @@
                                     <p>Mathematics Tutor</p>
                                 </div>
                                 <div class="message-thread">
-                                    <div class="message received">
-                                        <p>Hi there, about tomorrow's session, can we move it to 2pm instead of 1pm?</p>
-                                        <small>10:30 AM</small>
-                                    </div>
-                                    <div class="message sent">
-                                        <p>Yes that works for me. See you then!</p>
-                                        <small>10:32 AM</small>
-                                    </div>
-                                </div>
-                                <div class="message-compose">
-                                    <input type="text" placeholder="Type your message...">
-                                    <button><i class="fas fa-paper-plane"></i></button>
+                                    <p id="tutor-message-text">Hi there, about tomorrow's session, can we move it to 2pm instead of 1pm?</p>
                                 </div>
                             </div>
                         </div>
@@ -228,7 +208,9 @@
     query,
     where,
     getDocs,
-    getCountFromServer
+    getCountFromServer,
+    addDoc,
+    serverTimestamp
   } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
   // Firebase configuration
@@ -274,13 +256,23 @@
   getDocs(exercisesRef)
 ]).then(([messagesSnapshot, meetingsSnapshot, exercisesSnapshot]) => {
   const activityContainer = document.getElementById('activity-list');
-  activityContainer.innerHTML = '';  // Clear existing activities
+  activityContainer.innerHTML = '';
 
   const notificationsArr = [];
+  const messagesArr = [];
+/*
+  Display  Recent Activities
 
+*/
 //fetch messages
   messagesSnapshot.forEach(doc => {
     const data = doc.data();
+    messagesArr.push({
+      message: data.message,
+      timestamp: data["upload-date"].seconds,
+      formattedTime: formatTimestamp(data["upload-date"]),
+      type: 'message'
+    })
     notificationsArr.push({
       message: data.message,
       timestamp: data["upload-date"].seconds,
@@ -341,7 +333,11 @@
     activityContainer.appendChild(activityItem);
   });
 });
+/*
 
+Display courses
+
+*/
 //fetch Courses
 Promise.all([
   getDocs(moduleRef),
@@ -385,7 +381,30 @@ Promise.all([
     courseListContainer.appendChild(courseCard);
   });
 });
+/*
 
+ADD EVENT TO DATABASE
+
+*/
+  document.getElementById("save-event-btn").addEventListener("click", function(e){
+    e.preventDefault();
+
+    const eventName = document.getElementById("event-name").value;
+    const eventDate = document.getElementById("event-date").value;
+    const eventDescription = document.getElementById("event-description").value;
+
+    addDoc(collection(db, "Events"),{
+      "event-name": eventName,
+      "event-date": eventDate,
+      "event-description": eventDescription
+    })
+    .then(() => {
+      alert("Event added successfully");
+    })
+    .catch((error) => {
+      console.error("Error adding event: ", error);
+    })
+  });
   function formatTimestamp(timestamp) {
     return timestamp.toDate().toLocaleString('en-GB', {
       day: '2-digit',
@@ -397,8 +416,178 @@ Promise.all([
     });
   }
 
+  /*
+
+   CALENDAR SCRIPT
+
+
+  */
+
+  let today = new Date();
+let currentMonth = today.getMonth();
+let currentYear = today.getFullYear();
+
+const monthNames = ["January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"];
+const eventData = [];
+
+// Database functions
+async function fetchEventsFromDatabase() {
+  try {
+    const eventsRef = collection(db, "Events");
+    const q = query(eventsRef);
+    const querySnapshot = await getDocs(q);
+
+    eventData.length = 0; // Clear existing events
+    querySnapshot.forEach((doc) => {
+      const event = doc.data();
+      if (event["event-date"]) {
+        eventData.push({
+          date: event["event-date"],
+          name: event["event-name"] || "Event",
+          description: event["event-description"] || ""
+        });
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching events:", error);
+  }
+}
+
+function showEventsForDate(dateString) {
+  const events = eventData.filter(e => e.date === dateString);
+  if (events.length === 0) return;
+
+  const eventDetails = events.map(e =>
+    `<div class="event-tooltip">
+      <strong>${e.name}</strong>
+      ${e.description ? `<p>${e.description}</p>` : ''}
+    </div>`
+  ).join('');
+
+  const tooltip = document.createElement('div');
+  tooltip.className = 'event-popup';
+  tooltip.innerHTML = `
+    <div class="event-popup-content">
+      <span class="close-popup">&times;</span>
+      <h3>Events on ${new Date(dateString).toLocaleDateString()}</h3>
+      ${eventDetails}
+    </div>
+  `;
+
+  document.body.appendChild(tooltip);
+
+  tooltip.querySelector('.close-popup').onclick = function() {
+    document.body.removeChild(tooltip);
+  };
+}
+
+async function generateCalendar(month, year) {
+  const firstDay = new Date(year, month).getDay();
+  const daysInMonth = 32 - new Date(year, month, 32).getDate();
+  const calendarBody = document.getElementById("calendar-body");
+  calendarBody.innerHTML = "";
+  document.getElementById("month-year").textContent = `${monthNames[month]} ${year}`;
+
+  // Fetch events from database
+  await fetchEventsFromDatabase();
+
+  let date = 1;
+  for (let i = 0; i < 6; i++) {
+    const row = document.createElement("tr");
+
+    for (let j = 0; j < 7; j++) {
+      const cell = document.createElement("td");
+
+      if (i === 0 && j < firstDay) {
+        cell.textContent = "";
+      } else if (date > daysInMonth) {
+        break;
+      } else {
+        const thisDate = new Date(year, month, date+1);
+        const formatted = thisDate.toISOString().split("T")[0];
+        cell.textContent = date;
+
+        if (eventData.find(e => e.date === formatted)) {
+          cell.classList.add("event-day");
+          cell.onclick = function() {
+            showEventsForDate(formatted);
+          };
+        }
+
+        if (date === today.getDate() &&
+            year === today.getFullYear() &&
+            month === today.getMonth()) {
+          cell.classList.add("today");
+        }
+        date++;
+      }
+      row.appendChild(cell);
+    }
+    calendarBody.appendChild(row);
+  }
+}
+
+window.changeMonth = function(offset) {
+  currentMonth += offset;
+  if (currentMonth > 11) {
+    currentMonth = 0;
+    currentYear++;
+  } else if (currentMonth < 0) {
+    currentMonth = 11;
+    currentYear--;
+  }
+  generateCalendar(currentMonth, currentYear);
+};
+
+document.addEventListener("DOMContentLoaded", async () => {
+  // Initialize calendar with database events
+  await generateCalendar(currentMonth, currentYear);
+
+  // Modal controls
+  const modal = document.getElementById("event-modal");
+  const openBtn = document.getElementById("add-event-btn");
+  const closeBtn = document.getElementById("close-modal");
+  const saveBtn = document.getElementById("save-event-btn");
+
+  openBtn.onclick = () => modal.style.display = "block";
+  closeBtn.onclick = () => modal.style.display = "none";
+  window.onclick = e => { if (e.target === modal) modal.style.display = "none"; }
+
+  saveBtn.onclick = async () => {
+    const name = document.getElementById("event-name").value.trim();
+    const date = document.getElementById("event-date").value;
+    const description = document.getElementById("event-description").value.trim();
+
+    if (name && date) {
+      try {
+        // Save to Firestore
+        await addDoc(collection(db, "Events"), {
+          "event-name": name,
+          "event-date": date,
+          "event-description": description,
+          "created-at": serverTimestamp()
+        });
+
+        modal.style.display = "none";
+        document.getElementById("event-name").value = "";
+        document.getElementById("event-date").value = "";
+        document.getElementById("event-description").value = "";
+
+        // Refresh calendar to show new event
+        await generateCalendar(currentMonth, currentYear);
+      } catch (error) {
+        console.error("Error saving event:", error);
+        alert("Error saving event to database");
+      }
+    } else {
+      alert("Please fill in the name and date.");
+    }
+  };
+});
 
   </script>
-<script src="scripts/calendar-script.js" charset="utf-8"></script>
+<!--<script src="scripts/calendar-script.js" charset="utf-8"></script>-->
+
 </body>
 </html>
