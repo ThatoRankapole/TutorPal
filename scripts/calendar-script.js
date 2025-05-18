@@ -134,32 +134,3 @@ let today = new Date();
       calendarBody.appendChild(row);
     }
   }
-  function showEventsForDate(dateString) {
-  const events = eventData.filter(e => e.date === dateString);
-  if (events.length === 0) return;
-
-  const eventDetails = events.map(e =>
-    `<div class="event-tooltip">
-      <strong>${e.name}</strong>
-      ${e.description ? `<p>${e.description}</p>` : ''}
-    </div>`
-  ).join('');
-
-  // Create and show tooltip
-  const tooltip = document.createElement('div');
-  tooltip.className = 'event-popup';
-  tooltip.innerHTML = `
-    <div class="event-popup-content">
-      <span class="close-popup">&times;</span>
-      <h3>Events on ${new Date(dateString).toLocaleDateString()}</h3>
-      ${eventDetails}
-    </div>
-  `;
-
-  document.body.appendChild(tooltip);
-
-  // Close handler
-  tooltip.querySelector('.close-popup').onclick = function() {
-    document.body.removeChild(tooltip);
-  };
-}

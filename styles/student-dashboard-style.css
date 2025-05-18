@@ -530,6 +530,7 @@ body {
     margin-top: 5px;
     font-size: 0.7rem;
     opacity: 0.7;
+    float: right;
 }
 
 .message-compose {
@@ -612,6 +613,313 @@ body {
     padding: 8px 15px;
     border-radius: 4px;
     cursor: pointer;
+}
+
+/* Event action buttons */
+.event-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.event-actions button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.edit-event-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.delete-event-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.event-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.event-actions button:active {
+  transform: translateY(0);
+}
+
+.event-actions i {
+  font-size: 12px;
+}
+
+.event-tooltip {
+  position: relative; /* Needed for absolute positioning of child */
+}
+
+.event-edit-modal {
+  position: absolute;
+  bottom: 100%; /* Positions above the parent */
+  left: 0;
+  z-index: 100;
+  background: white;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  width: 250px;
+  display: none; /* Hidden by default */
+}
+
+/* Show modal when edit button is clicked */
+.event-tooltip.active .event-edit-modal {
+  display: block;
+}
+
+/* Optional: Add a little arrow */
+.event-edit-modal::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 20px;
+  border-width: 8px;
+  border-style: solid;
+  border-color: white transparent transparent transparent;
+}
+
+
+  /* Style for the redirect container */
+  .calculator-redirect {
+    background-color: white;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 2px dashed #e0e0e0;
+  }
+
+  .calculator-redirect:hover {
+    background-color: #f8f9fc;
+    border-color: var(--tut-blue);
+    transform: translateY(-2px);
+  }
+
+  .redirect-content i {
+    font-size: 2.5rem;
+    color: var(--tut-blue);
+    margin-bottom: 15px;
+  }
+
+  .redirect-content h3 {
+    color: var(--tut-blue);
+    margin-bottom: 10px;
+  }
+
+  .redirect-content p {
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  /* Predicate Calculator Styles */
+.calculator-section {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.calculator-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: var(--tut-blue);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.PredicateCalculator {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.CalculatorForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.subjectInputs label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--tut-blue);
+}
+
+.subjectInputs input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+#instruction {
+    font-size: 0.85rem;
+    color: #666;
+    line-height: 1.5;
+}
+
+.testInputs {
+    background-color: #f8f9fc;
+    padding: 15px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.testInputs label {
+    flex: 1;
+    font-weight: 500;
+    color: #555;
+}
+
+.markInputs {
+    width: 80px;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.nextButton, .homeButton {
+    background-color: var(--tut-blue);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.nextButton:hover, .homeButton:hover {
+    background-color: #00257A;
+}
+
+.AddedTestInputs {
+    background-color: white;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 1px solid #eee;
+}
+
+.homeButtons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+#results {
+    background-color: white;
+    border-radius: 8px;
+    padding: 25px;
+    margin-top: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: none;
+}
+
+#results h1 {
+    color: var(--tut-blue);
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#resultsDisplay {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    display: block;
+    text-align: center;
+}
+
+.resultButtons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.popup-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    max-width: 400px;
+    width: 90%;
+    display: none;
+    border: 2px solid var(--tut-blue);
+}
+
+.popup-box p {
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.popup-box button {
+    padding: 8px 15px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.popup-box button:first-child {
+    background-color: var(--tut-blue);
+    color: white;
+}
+
+.popup-box button:last-child {
+    background-color: #f1f1f1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .testInputs, .AddedTestInputs {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .testInputs label, .AddedTestInputs label {
+        width: 100%;
+    }
+
+    .markInputs {
+        width: 100%;
+    }
+
+    .homeButtons, .resultButtons {
+        flex-direction: column;
+    }
+
+    .homeButtons button, .resultButtons button {
+        width: 100%;
+    }
 }
 
 /* Responsive Design */
