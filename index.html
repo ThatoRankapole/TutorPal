@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TutorPal - Student Login</title>
     <link rel="stylesheet" href="styles/login-style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
 </head>
 <body class="login-body">
     <div class="login-container">
         <div class="login-header">
-            <img src="https://www.tut.ac.za/images/logo.png" alt="TUT Logo" class="logo">
+            <img width="100" height="100" src="https://img.icons8.com/bubbles/100/training.png" alt="training"/>
             <h1>TutorPal</h1>
             <h2>Student Login</h2>
         </div>
@@ -33,50 +36,123 @@
             </div>
 
             <button type="submit" class="login-btn">Login</button>
+            <div id="error-message" class="error-message"></div>
         </form>
+
         <div class="login-footer">
             <p>Need help? Contact <a href="mailto:231240942@tut4life.ac.za">Admin</a></p>
             <p class="copyright">&copy; TutorPal</p>
         </div>
     </div>
-    <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Your web app's Firebase configuration
+    <script>
+    // Initialize Firebase
     const firebaseConfig = {
-      apiKey: "AIzaSyDKxS5yJU-6KiOs_fVO03tXoPC6sLFbnJU",
-      authDomain: "tutorpal-98679.firebaseapp.com",
-      projectId: "tutorpal-98679",
-      storageBucket: "tutorpal-98679.firebasestorage.app",
-      messagingSenderId: "473172390647",
-      appId: "1:473172390647:web:04d7cb1d550a91dc8059f2",
-      measurementId: "G-538MQ597GM"
+        apiKey: "AIzaSyDKxS5yJU-6KiOs_fVO03tXoPC6sLFbnJU",
+        authDomain: "tutorpal-98679.firebaseapp.com",
+        projectId: "tutorpal-98679",
+        storageBucket: "tutorpal-98679.appspot.com",
+        messagingSenderId: "473172390647",
+        appId: "1:473172390647:web:04d7cb1d550a91dc8059f2",
+        measurementId: "G-538MQ597GM"
     };
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const db = getFirestore(app);
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-    async function checkStudentExistace(event) {
-      event.preventDefault();
+    document.addEventListener('DOMContentLoaded', () => {
+        const loginForm = document.getElementById('student-login-form');
+        const forgotPasswordLink = document.querySelector('.forgot-password');
+        const errorMessage = document.getElementById('error-message');
 
-      const studentNumber = document.getElementById("student-number").value;
-      const docRef = doc(db, "Student", studentNumber);
-      const docSnap = await getDoc(docRef);
+        async function handleLogin(event) {
+            event.preventDefault();
+            errorMessage.textContent = '';
 
-      if (docSnap.exists()) {
-        alert("Student exists");
-        window.location.href = "student-dashboard.html";
-      } else {
-        alert("Student does not exist");
-      }
-    }
+            const studentNumber = document.getElementById('student-number').value.trim();
+            const password = document.getElementById('password').value;
 
-    document.getElementById("student-login-form").addEventListener("submit", checkStudentExistace);
-</script>
+            if (!studentNumber || !password) {
+                showError("Please fill in all fields");
+                return;
+            }
+
+            try {
+                const studentDoc = await db.collection("Student").doc(studentNumber).get();
+
+                if (!studentDoc.exists) {
+                    showError("Student number not found");
+                    return;
+                }
+
+                const studentData = studentDoc.data();
+                const studentEmail = studentData['student-email'];
+
+                await auth.signInWithEmailAndPassword(studentEmail, password);
+                window.location.href = "student-dashboard.html";
+
+            } catch (error) {
+                console.error("Login error:", error);
+                handleAuthError(error);
+            }
+        }
+
+        async function handleForgotPassword(event) {
+            event.preventDefault();
+            errorMessage.textContent = '';
+
+            const studentNumber = document.getElementById('student-number').value.trim();
+
+            if (!studentNumber) {
+                showError("Please enter your student number first");
+                return;
+            }
+
+            try {
+                const studentDoc = await db.collection("Student").doc(studentNumber).get();
+
+                if (!studentDoc.exists) {
+                    showError("Student number not found");
+                    return;
+                }
+
+                const studentData = studentDoc.data();
+                const studentEmail = studentData['student-email'];
+
+                await auth.sendPasswordResetEmail(studentEmail);
+                showError("Password reset email sent. Check your inbox.", "success");
+
+            } catch (error) {
+                console.error("Password reset error:", error);
+                handleAuthError(error);
+            }
+        }
+
+        function handleAuthError(error) {
+            switch (error.code) {
+                case 'auth/wrong-password':
+                    showError("Incorrect password");
+                    break;
+                case 'auth/user-not-found':
+                    showError("Account not found");
+                    break;
+                case 'auth/too-many-requests':
+                    showError("Too many attempts. Try again later.");
+                    break;
+                default:
+                    showError("Login failed. Please try again.");
+            }
+        }
+
+        function showError(message, type = "error") {
+            errorMessage.textContent = message;
+            errorMessage.className = `error-message ${type}`;
+        }
+
+        loginForm.addEventListener('submit', handleLogin);
+        forgotPasswordLink.addEventListener('click', handleForgotPassword);
+    });
+    </script>
 </body>
 </html>

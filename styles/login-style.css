@@ -1,55 +1,21 @@
-/*universal elements style*/
-:root {
-    --blue: #0033A0;
-    --gold: #FFD700;
-    --white: #FFFFFF;
-    --light-gray: #F5F5F5;
-    --dark-gray: #333333;
-}
-
-* {
+.login-body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
-}
-
-body {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 20px;
 }
 
-/*login page*/
-.login-body{
-  position: relative;
-  min-height: 100vh;
-  z-index: 1;
-}
-.login-body::before{
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url('https://images.unsplash.com/photo-1528901166007-3784c7dd3653?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  opacity: 0.6;
-  z-index: -1;
-}
 .login-container {
-    background-color: var(--white);
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 350px;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    padding: 30px;
     text-align: center;
 }
 
@@ -57,19 +23,20 @@ body {
     margin-bottom: 30px;
 }
 
-.login-header .logo {
-    width: 100px;
+.logo {
+    height: 60px;
     margin-bottom: 15px;
 }
 
 .login-header h1 {
-    color: var(--blue);
+    color: #003366; /* TUT blue */
+    margin: 10px 0 5px;
     font-size: 24px;
-    margin-bottom: 5px;
 }
 
 .login-header h2 {
-    color: var(--dark-gray);
+    color: #555;
+    margin: 0;
     font-size: 18px;
     font-weight: normal;
 }
@@ -82,41 +49,44 @@ body {
 .login-form-group label {
     display: block;
     margin-bottom: 8px;
-    color: var(--dark-gray);
-    font-weight: bold;
+    color: #555;
+    font-weight: 500;
 }
 
 .login-form-group input {
     width: 100%;
     padding: 12px 15px;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 4px;
     font-size: 16px;
+    transition: border 0.3s;
 }
 
 .login-form-group input:focus {
+    border-color: #003366;
     outline: none;
-    border-color: var(--blue);
-    box-shadow: 0 0 0 2px rgba(0, 51, 160, 0.2);
 }
 
 .login-form-options {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     font-size: 14px;
 }
 
 .remember-me {
     display: flex;
     align-items: center;
-    gap: 5px;
-    color: var(--dark-gray);
+    color: #555;
+}
+
+.remember-me input {
+    margin-right: 8px;
 }
 
 .forgot-password {
-    color: var(--blue);
+    color: #003366;
     text-decoration: none;
 }
 
@@ -125,30 +95,30 @@ body {
 }
 
 .login-btn {
-    width: 100%;
-    padding: 12px;
-    background-color: var(--blue);
-    color: var(--white);
+    background-color: #003366;
+    color: white;
     border: none;
-    border-radius: 5px;
+    padding: 12px;
+    border-radius: 4px;
+    width: 100%;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 500;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
 .login-btn:hover {
-    background-color: #00257A;
+    background-color: #002244;
 }
 
 .login-footer {
     margin-top: 30px;
     font-size: 13px;
-    color: var(--dark-gray);
+    color: #777;
 }
 
 .login-footer a {
-    color: var(--blue);
+    color: #003366;
     text-decoration: none;
 }
 
@@ -158,15 +128,30 @@ body {
 
 .copyright {
     margin-top: 10px;
-    color: #777;
 }
 
-@media (max-width: 480px) {
-    .login-container {
-        padding: 30px 20px;
-    }
+/* Error message styling */
+.error-message {
+    color: #d9534f;
+    margin-top: 15px;
+    font-size: 14px;
+}
 
-    .login-header h1 {
-        font-size: 22px;
-    }
+.error-message {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.error-message.error {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+}
+
+.error-message.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
 }

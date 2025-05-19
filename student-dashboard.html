@@ -34,7 +34,7 @@
                 <li data-tab="predicate-calculator" onclick="showTab('predicate-calculator')">
                   <a href="#"><i class="fa-solid fa-calculator"></i> Predicate Calculator</a>
                 </li>
-                <li>
+                <li data-tab="settings" onclick="showTab('settings')">
                   <a href="#"><i class="fas fa-cog"></i> Settings</a>
                 </li>
               </ul>
@@ -139,87 +139,136 @@
 
                 <!-- Messages Tab -->
                 <div class="tab-content" id="messages-tab">
-    <section class="messages-section">
-        <h2><i class="fas fa-comments"></i> Messages</h2>
-        <div class="messages-container">
-            <!-- This will be populated with a list of conversations dynamically -->
-            <div class="conversation-list">
-                <!-- JavaScript will inject .conversation items here -->
-            </div>
+                    <section class="messages-section">
+                        <h2><i class="fas fa-comments"></i> Messages</h2>
+                        <div class="messages-container">
+                            <!-- This will be populated with a list of conversations dynamically -->
+                            <div class="conversation-list">
+                                <!-- JavaScript will inject .conversation items here -->
+                            </div>
 
-            <!-- This will show the selected message dynamically -->
-            <div class="message-view">
-                <!-- JavaScript will inject message content here -->
+                            <!-- This will show the selected message dynamically -->
+                            <div class="message-view">
+                                <!-- JavaScript will inject message content here -->
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Predicate Calculator Tab -->
+                <div class="tab-content" id="predicate-calculator-tab">
+                    <section class="calculator-section">
+                        <h2><i class="fa-solid fa-calculator"></i> Predicate Calculator</h2>
+                        <div class="PredicateCalculator">
+                            <form class="CalculatorForm">
+                                <div class="subjectInputs">
+                                    <label id="subjNameHeader">Subject Name/Code</label><br>
+                                    <input type="text" id="subjectName" placeholder="eg:Life skills/LFS125X" required><br>
+                                    <p id="instruction">Enter number of assessments then click next.<br>
+                                    Enter assessment percentage on the left<br>
+                                    Enter assessment weight on the right<br>
+                                    Enter even unwritten assessment weights with 0 as the mark<br>
+                                    </p>
+                                </div>
+
+                                <div class="testInputs" id="quizzes">
+                                    <label>Number of Quizzes</label>
+                                    <input class="markInputs" type="number" id="numQuizzes" min="0" max="50">
+                                    <button class="nextButton" type="button" id="revealQuizzesInput" onclick="numberOfTests()">next</button>
+                                </div>
+                                <span id="selectedQuizzes"></span>
+
+                                <div class="testInputs" id="classTests">
+                                    <label>Number of Class tests</label>
+                                    <input class="markInputs" type="number" id="numClassTests" min="0" max="50">
+                                    <button class="nextButton" type="button" id="revealClassTestInput" onclick="numberOfTests()">next</button>
+                                </div>
+                                <span id="selectedClassTests"></span>
+
+                                <div class="testInputs" id="assignments">
+                                    <label>Number of assignments</label>
+                                    <input class="markInputs" type="number" id="numAssignments" min="0" max="50">
+                                    <button class="nextButton" type="button" id="revealAssignmentInput" onclick="numberOfTests()">next</button>
+                                </div>
+                                <span id="selectedAssignments"></span>
+
+                                <div class="testInputs" id="semesterTests">
+                                    <label>Number of semester tests</label>
+                                    <input class="markInputs" type="number" id="numSemTests" min="0" max="50">
+                                    <button class="nextButton" type="button" id="revealSemTestsInput" onclick="numberOfTests()">next</button>
+                                </div>
+                                <span id="selectedSemTests"></span>
+
+                                <div class="homeButtons">
+                                    <button class="homeButton" type="button" id="calculate" onclick="calculateButton()">calculate</button>
+                                    <button class="homeButton" type="button" id="view" onclick="viewResultsButton()">view results</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div id="results">
+                            <h1>Predicate Mark(s)</h1>
+                            <span id="resultsDisplay"></span>
+                            <div class="resultButtons">
+                                <button class="homeButton" type="button" onclick="reset()">reset</button>
+                                <button class="homeButton" type="button" onclick="back()">back</button>
+                            </div>
+                        </div>
+
+                        <div id="popup" class="popup-box">
+                            <p id="instructionText">Welcome to the Predicate Calculator!</p>
+                            <button onclick="nextInstruction()">Next</button>
+                            <button onclick="skipInstructions()">Skip</button>
+                        </div>
+                    </section>
+                </div>
+                <!-- Settings Tab -->
+<div class="tab-content" id="settings-tab">
+    <section class="settings-section">
+        <h2><i class="fas fa-cog"></i> Settings</h2>
+
+        <div class="settings-container">
+            <!-- Profile Section -->
+            <div class="settings-card">
+                <h3><i class="fas fa-user"></i> Profile Information</h3>
+                <div class="profile-picture-container">
+                    <img id="profile-picture" src="https://img.icons8.com/material-rounded/24/user-male-circle.png" alt="Profile Picture">
+                    <div class="picture-buttons">
+                        <button id="change-picture-btn" class="icon-btn">
+                            <i class="fas fa-camera"></i> Change
+                        </button>
+                        <button id="remove-picture-btn" class="icon-btn">
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
+                    </div>
+                    <input type="file" id="profile-picture-upload" accept="image/*" style="display: none;">
+                </div>
+
+                <div class="profile-info">
+                    <div class="info-item">
+                        <span class="info-label">Name:</span>
+                        <span id="student-name" class="info-value"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Surname:</span>
+                        <span id="student-surname" class="info-value"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Student Number:</span>
+                        <span id="student-number" class="info-value"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span id="student-email" class="info-value"></span>
+                    </div>
+                </div>
+
+                <button id="open-password-change" class="change-password-btn">
+                    <i class="fas fa-key"></i> Change Password
+                </button>
             </div>
         </div>
     </section>
-</div>
-<!--Predicte Clculator Tab-->
-<div class="tab-content" id="predicate-calculator-tab">
-<section class="calculator-section">
-<h2><i class="fa-solid fa-calculator"></i> Predicate Calculator</h2>
-<div class="PredicateCalculator">
-  <form class="CalculatorForm">
-    <div class="subjectInputs">
-      <label id="subjNameHeader">Subject Name/Code</label><br>
-      <input type="text" id="subjectName" placeholder="eg:Life skills/LFS125X" required><br>
-      <p id="instruction">Enter number of assessments then click next.<br>
-        Enter assessment percentage on the left<br>
-        Enter assessment weight on the right<br>
-        Enter even unwritten assessment weights with 0 as the mark<br>
-      </p>
-    </div>
-
-    <div class="testInputs" id="quizzes">
-      <label>Number of Quizzes</label>
-      <input class="markInputs" type="number" id="numQuizzes" min="0" max="50">
-      <button class="nextButton" type="button" id="revealQuizzesInput" onclick="numberOfTests()">next</button>
-    </div>
-    <span id="selectedQuizzes"></span>
-
-    <div class="testInputs" id="classTests">
-      <label>Number of Class tests</label>
-      <input class="markInputs" type="number" id="numClassTests" min="0" max="50">
-      <button class="nextButton" type="button" id="revealClassTestInput" onclick="numberOfTests()">next</button>
-    </div>
-    <span id="selectedClassTests"></span>
-
-    <div class="testInputs" id="assignments">
-      <label>Number of assignments</label>
-      <input class="markInputs" type="number" id="numAssignments" min="0" max="50">
-      <button class="nextButton" type="button" id="revealAssignmentInput" onclick="numberOfTests()">next</button>
-    </div>
-    <span id="selectedAssignments"></span>
-
-    <div class="testInputs" id="semesterTests">
-      <label>Number of semester tests</label>
-      <input class="markInputs" type="number" id="numSemTests" min="0" max="50">
-      <button class="nextButton" type="button" id="revealSemTestsInput" onclick="numberOfTests()">next</button>
-    </div>
-    <span id="selectedSemTests"></span>
-
-    <div class="homeButtons">
-      <button class="homeButton" type="button" id="calculate" onclick="calculateButton()">calculate</button>
-      <button class="homeButton" type="button" id="view" onclick="viewResultsButton()">view results</button>
-    </div>
-  </form>
-</div>
-
-<div id="results">
-  <h1>Predicate Mark(s)</h1>
-  <span id="resultsDisplay"></span>
-  <div class="resultButtons">
-    <button class="homeButton" type="button" onclick="reset()">reset</button>
-    <button class="homeButton" type="button" onclick="back()">back</button>
-  </div>
-</div>
-
-<div id="popup" class="popup-box">
-  <p id="instructionText">Welcome to the Predicate Calculator!</p>
-  <button onclick="nextInstruction()">Next</button>
-  <button onclick="skipInstructions()">Skip</button>
-</div>
-</section>
 </div>
             </div>
         </main>
@@ -247,863 +296,16 @@
             </form>
         </div>
     </div>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-  <script src="scripts/dashboard-script.js"></script>
-    <script type="module">
-  // Import necessary Firebase SDK modules
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
-
-  import {
-    getFirestore,
-    collection,
-    query,
-    where,
-    getDocs,
-    getCountFromServer,
-    addDoc,
-    serverTimestamp,
-    doc,
-    updateDoc,
-    deleteDoc,
-    orderBy,
-    getDoc
-  } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-  // Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyDKxS5yJU-6KiOs_fVO03tXoPC6sLFbnJU",
-    authDomain: "tutorpal-98679.firebaseapp.com",
-    projectId: "tutorpal-98679",
-    storageBucket: "tutorpal-98679.firebasestorage.app",
-    messagingSenderId: "473172390647",
-    appId: "1:473172390647:web:04d7cb1d550a91dc8059f2",
-    measurementId: "G-538MQ597GM"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  const db = getFirestore(app);
-
-  const moduleRef = collection(db, "Modules");
-  const meetingsRef = collection(db, "meetings");
-  const messagesRef = collection(db, "Messages");
-  const exercisesRef = collection(db, "Exercises");
-  const tutorsRef = collection(db, "Tutors")
-  const eventsRef = collection(db, "Events");
-
-  //count courses, messages and unread messages
-  getCountFromServer(moduleRef).then((snapshot) => {
-    document.getElementById('number-of-courses').textContent = snapshot.data().count;
-  });
-  getCountFromServer(meetingsRef).then((snapshot) => {
-    document.getElementById('number-of-meetings').textContent = snapshot.data().count;
-  });
-
-  const unreadMessagesRef = query(messagesRef, where("read", "==", false));
-  getCountFromServer(unreadMessagesRef).then((snapshot) => {
-    document.getElementById('unread-messages').textContent =  snapshot.data().count;
-  });
-
-  //fetch and display all notifications
-  Promise.all([
-  getDocs(messagesRef),
-  getDocs(meetingsRef),
-  getDocs(exercisesRef)
-]).then(([messagesSnapshot, meetingsSnapshot, exercisesSnapshot]) => {
-  const activityContainer = document.getElementById('activity-list');
-  activityContainer.innerHTML = '';
-
-  const notificationsArr = [];
-  const messagesArr = [];
-
-/*
-  Display  Recent Activities
-*/
-//fetch messages
-  messagesSnapshot.forEach(doc => {
-    const data = doc.data();
-    messagesArr.push({
-      message: data.message,
-      timestamp: data["upload-date"].seconds,
-      formattedTime: formatTimestamp(data["upload-date"]),
-      type: 'message'
-    })
-    notificationsArr.push({
-      message: data.message,
-      timestamp: data["upload-date"].seconds,
-      formattedTime: formatTimestamp(data["upload-date"]),
-      type: 'message'
-    });
-  });
-
-//fetch meetings
-  meetingsSnapshot.forEach(doc => {
-    const data = doc.data();
-    notificationsArr.push({
-      message: `Meeting: ${data["meeting-name"]}<br>
-      Description: ${data["meeting-description"]}<br>
-      Date: ${formatTimestamp(data["meeting-date"])}<br>
-      Link: <a href=${data["meeting-link"]}>Join</a>`,
-      timestamp: data["upload-date"].seconds,
-      formattedTime: formatTimestamp(data["upload-date"]),
-      type: 'meeting'
-    });
-  });
-
-//fetch exercises
-  exercisesSnapshot.forEach(doc => {
-    const data = doc.data();
-    notificationsArr.push({
-      message: `Exercise: ${data["exercise-name"]}`,
-      timestamp: data["upload-date"].seconds,
-      formattedTime: formatTimestamp(data["upload-date"]),
-      type: 'exercise'
-    });
-  });
-
-  notificationsArr.sort((a, b) => b.timestamp - a.timestamp);
-
-  notificationsArr.forEach(item => {
-    const activityItem = document.createElement('div');
-    let notificationIcon = "";
-//add messages to html page
-    if (item.type === 'message') {
-      notificationIcon = `<i class="fa-solid fa-envelope"></i>`;
-    } else if (item.type === 'meeting') {
-      notificationIcon = `<i class="fas fa-book"></i>`;
-    } else if (item.type === 'exercise') {
-      notificationIcon = `<i class="fa-solid fa-pen"></i>`;
-    }
-
-    activityItem.className = 'activity-item';
-    activityItem.innerHTML = `
-      <div class="activity-icon">
-        ${notificationIcon}
-      </div>
-      <div class="activity-details">
-        <p>${item.message}</p>
-        <small>${item.formattedTime}</small>
-      </div>
-    `;
-    activityContainer.appendChild(activityItem);
-  });
-});
-/*
-Display courses
-*/
-//fetch Courses
-Promise.all([
-  getDocs(moduleRef),
-  getDocs(tutorsRef)
-]).then(([moduleSnapshot, tutorSnapshot]) => {
-  const courseListContainer = document.getElementById("course-list");
-  courseListContainer.innerHTML = "";
-
-  const tutors = tutorSnapshot.docs.map(doc => doc.data());
-
-  moduleSnapshot.forEach((doc) => {
-    const data = doc.data();
-    const moduleName = data["module-code"];
-    let consultationNeed = data["consultation-needed"] ? "Yes" : "No";
-
-    const tutor = tutors.find(t => t["module-code"] === moduleName);
-    const tutorNames = tutor ? tutor["name"] + " " + tutor["surname"] : "Unassigned";
-
-    const courseCard = document.createElement("div");
-    courseCard.className = "course-card";
-
-    courseCard.innerHTML = `
-      <div class="course-header">
-        <h3>${data["module-name"]}</h3>
-        <span class="course-code">${data["module-code"]}</span>
-      </div>
-      <div class="course-modules">
-        <h4>Details:</h4>
-        <ul>
-          <li>Performance: ${data.performance}</li>
-          <li>Current-Predicate: ${data["current-predicate"]}</li>
-          <li>Consultation Needed: ${consultationNeed}</li>
-        </ul>
-      </div>
-      <div class="course-tutor">
-        <p>Tutor: ${tutor ? tutorNames : "Unassigned"}
-        ${tutor ? `<a href="mailto:${tutor.email}?subject=feedback">email me</a>` : ""}</p>
-      </div>
-    `;
-
-    courseListContainer.appendChild(courseCard);
-  });
-});
-
-  function formatTimestamp(timestamp) {
-    return timestamp.toDate().toLocaleString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-  }
-
-  /*
-   CALENDAR SCRIPT
-  */
-
-  let today = new Date();
-  let currentMonth = today.getMonth();
-  let currentYear = today.getFullYear();
-
-  const monthNames = ["January", "February", "March", "April", "May", "June",
-                      "July", "August", "September", "October", "November", "December"];
-  const eventData = [];
-
-  // Database functions
-  async function fetchEventsFromDatabase() {
-    try {
-      const q = query(eventsRef);
-      const querySnapshot = await getDocs(q);
-
-      eventData.length = 0; // Clear existing events
-      querySnapshot.forEach((doc) => {
-        const event = doc.data();
-        if (event["event-date"]) {
-          eventData.push({
-            id: doc.id,
-            date: event["event-date"],
-            name: event["event-name"] || "Event",
-            description: event["event-description"] || ""
-          });
-        }
-      });
-    } catch (error) {
-      console.error("Error fetching events:", error);
-    }
-  }
-
-  function showEventsForDate(dateString) {
-    const events = eventData.filter(e => e.date === dateString);
-    if (events.length === 0) return;
-
-    const eventDetails = events.map(e =>
-      `<div class="event-tooltip">
-        <strong>${e.name}</strong>
-        ${e.description ? `<p>${e.description}</p>` : ''}<br>
-        <button class="edit-event-btn" data-id="${e.id}">Edit</button>
-        <button class="delete-event-btn" data-id="${e.id}">Delete</button>
-      </div>`
-    ).join('');
-
-    const tooltip = document.createElement('div');
-    tooltip.className = 'event-popup';
-    tooltip.innerHTML = `
-      <div class="event-popup-content">
-        <span class="close-popup">&times;</span>
-        <h3>Events on ${new Date(dateString).toLocaleDateString()}</h3>
-        ${eventDetails}
-      </div>
-    `;
-
-    document.body.appendChild(tooltip);
-
-    // Add event listeners for edit and delete buttons
-    tooltip.querySelectorAll('.edit-event-btn').forEach(button => {
-      button.addEventListener('click', function() {
-        const eventId = this.getAttribute('data-id');
-        const event = eventData.find(e => e.id === eventId);
-        if (event) {
-          editEvent(event);
-        }
-      });
-    });
-
-    tooltip.querySelectorAll('.delete-event-btn').forEach(button => {
-      button.addEventListener('click', function() {
-        const eventId = this.getAttribute('data-id');
-        deleteEvent(eventId);
-      });
-    });
-
-    tooltip.querySelector('.close-popup').onclick = function() {
-      document.body.removeChild(tooltip);
-    };
-  }
-
-  function editEvent(event) {
-    const modal = document.getElementById("event-modal");
-    document.getElementById("event-name").value = event.name;
-    document.getElementById("event-date").value = event.date;
-    document.getElementById("event-description").value = event.description || '';
-    document.querySelector('.event-popup').style.display = 'none';
-    document.getElementById("event-manipulation-heading").textContent = "Edit Event";
-
-    // Change the save button to update mode
-    const saveBtn = document.getElementById("save-event-btn");
-    saveBtn.textContent = "Update Event";
-    saveBtn.onclick = async function() {
-      const name = document.getElementById("event-name").value.trim();
-      const date = document.getElementById("event-date").value;
-      const description = document.getElementById("event-description").value.trim();
-
-      if (name && date) {
-        try {
-          await updateDoc(doc(db, "Events", event.id), {
-            "event-name": name,
-            "event-date": date,
-            "event-description": description
-          });
-
-          modal.style.display = "none";
-          await generateCalendar(currentMonth, currentYear);
-        } catch (error) {
-          console.error("Error updating event:", error);
-          alert("Error updating event");
-        }
-      } else {
-        alert("Please fill in the name and date.");
-      }
-    };
-
-    modal.style.display = "block";
-  }
-
-  async function deleteEvent(eventId) {
-    if (confirm("Are you sure you want to delete this event?")) {
-      try {
-        await deleteDoc(doc(db, "Events", eventId));
-        await generateCalendar(currentMonth, currentYear);
-      } catch (error) {
-        console.error("Error deleting event:", error);
-        alert("Error deleting event");
-      }
-    }
-  }
-
-  async function generateCalendar(month, year) {
-    const firstDay = new Date(year, month).getDay();
-    const daysInMonth = 32 - new Date(year, month, 32).getDate();
-    const calendarBody = document.getElementById("calendar-body");
-    calendarBody.innerHTML = "";
-    document.getElementById("month-year").textContent = `${monthNames[month]} ${year}`;
-
-    // Fetch events from database
-    await fetchEventsFromDatabase();
-
-    let date = 1;
-    for (let i = 0; i < 6; i++) {
-      const row = document.createElement("tr");
-
-      for (let j = 0; j < 7; j++) {
-        const cell = document.createElement("td");
-
-        if (i === 0 && j < firstDay) {
-          cell.textContent = "";
-        } else if (date > daysInMonth) {
-          break;
-        } else {
-          const thisDate = new Date(year, month, date+1);
-          const formatted = thisDate.toISOString().split("T")[0];
-          cell.textContent = date;
-
-          if (eventData.find(e => e.date === formatted)) {
-            cell.classList.add("event-day");
-            cell.onclick = function() {
-              showEventsForDate(formatted);
-            };
-          }
-
-          if (date === today.getDate() &&
-              year === today.getFullYear() &&
-              month === today.getMonth()) {
-            cell.classList.add("today");
-          }
-          date++;
-        }
-        row.appendChild(cell);
-      }
-      calendarBody.appendChild(row);
-    }
-  }
-
-  window.changeMonth = function(offset) {
-    currentMonth += offset;
-    if (currentMonth > 11) {
-      currentMonth = 0;
-      currentYear++;
-    } else if (currentMonth < 0) {
-      currentMonth = 11;
-      currentYear--;
-    }
-    generateCalendar(currentMonth, currentYear);
-  };
-
-  document.addEventListener("DOMContentLoaded", async () => {
-    // Initialize calendar with database events
-    await generateCalendar(currentMonth, currentYear);
-
-    // Modal controls
-    const modal = document.getElementById("event-modal");
-    const openBtn = document.getElementById("add-event-btn");
-    const closeBtn = document.getElementById("close-modal");
-    const saveBtn = document.getElementById("save-event-btn");
-    document.getElementById("event-manipulation-heading").textContent = "Add New Event";
-
-    openBtn.onclick = () => {
-      // Reset form when opening for new event
-      document.getElementById("event-name").value = "";
-      document.getElementById("event-date").value = "";
-      document.getElementById("event-description").value = "";
-      saveBtn.textContent = "Save Event";
-      saveBtn.onclick = saveNewEvent;
-      modal.style.display = "block";
-    };
-
-    closeBtn.onclick = () => modal.style.display = "none";
-    window.onclick = e => { if (e.target === modal) modal.style.display = "none"; }
-
-    async function saveNewEvent() {
-      const name = document.getElementById("event-name").value.trim();
-      const date = document.getElementById("event-date").value;
-      const description = document.getElementById("event-description").value.trim();
-
-      if (name && date) {
-        try {
-          // Save to Firestore
-          await addDoc(collection(db, "Events"), {
-            "event-name": name,
-            "event-date": date,
-            "event-description": description,
-            "created-at": serverTimestamp()
-          });
-
-          modal.style.display = "none";
-          // Refresh calendar to show new event
-          await generateCalendar(currentMonth, currentYear);
-        } catch (error) {
-          console.error("Error saving event:", error);
-          alert("Error saving event to database");
-        }
-      } else {
-        alert("Please fill in the name and date.");
-      }
-    }
-    // Edit mode handler
-function setupEditHandler(event) {
-  return async function() {
-    const name = document.getElementById("event-name").value.trim();
-    const date = document.getElementById("event-date").value;
-    const description = document.getElementById("event-description").value.trim();
-
-    if (name && date) {
-      try {
-        await updateDoc(doc(db, "Events", event.id), {
-          "event-name": name,
-          "event-date": date,
-          "event-description": description
-        });
-        modal.style.display = "none";
-        await generateCalendar(currentMonth, currentYear);
-      } catch (error) {
-        console.error("Error updating event:", error);
-        alert("Error updating event");
-      }
-    } else {
-      alert("Please fill in the name and date.");
-    }
-  };
-}
-
-openBtn.onclick = () => {
-  // Reset form for new event
-  document.getElementById("event-name").value = "";
-  document.getElementById("event-date").value = "";
-  document.getElementById("event-description").value = "";
-  saveBtn.textContent = "Save Event";
-  saveBtn.onclick = saveNewEvent;
-  modal.style.display = "block";
-};
-
-closeBtn.onclick = () => modal.style.display = "none";
-window.onclick = e => { if (e.target === modal) modal.style.display = "none"; }
-});
-
-async function loadMessages() {
-  const messages = [];
-  const messagesSnapshot = await getDocs(collection(db, "Messages"));
-
-  for (const messageDoc of messagesSnapshot.docs) {
-    const data = messageDoc.data();
-    const tutorId = data["tutor-id"];
-    if (!tutorId) continue;
-
-    const tutorDocRef = doc(db, "Tutors", tutorId);
-    const tutorDocSnap = await getDoc(tutorDocRef);
-
-    if (tutorDocSnap.exists()) {
-      const tutorData = tutorDocSnap.data();
-
-      const fullName = `${tutorData.name} ${tutorData.surname}`;
-      const module = tutorData["module-code"];
-
-      const timestamp = data["upload-date"]?.seconds || 0;
-      const date = new Date(timestamp * 1000);
-
-      // Format date as dd-MM-yyyy   hh:mm AM/PM
-      const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const year = date.getFullYear();
-
-      let hours = date.getHours();
-      const minutes = String(date.getMinutes()).padStart(2, "0");
-      const ampm = hours >= 12 ? "PM" : "AM";
-      hours = hours % 12;
-      hours = hours ? hours : 12; // the hour '0' should be '12'
-      const strHours = String(hours).padStart(2, "0");
-
-      const formattedDate = `${day}-${month}-${year}   ${strHours}:${minutes} ${ampm}`;
-
-      messages.push({
-        id: messageDoc.id,
-        name: fullName,
-        module: module,
-        message: data.message,
-        time: formattedDate,
-      });
-    }
-  }
-
-  renderMessages(messages);
-}
-
-
-function renderMessages(messages) {
-  const conversationList = document.querySelector(".conversation-list");
-  const messageView = document.querySelector(".message-view");
-
-  conversationList.innerHTML = "";
-  messageView.innerHTML = "";
-
-  messages.forEach((msg, index) => {
-    const convo = document.createElement("div");
-    convo.className = `conversation ${index === 0 ? "active" : ""}`;
-    convo.innerHTML = `
-      <div class="conversation-avatar">
-        <i class="fa-solid fa-envelope"></i>
-      </div>
-      <div class="conversation-details">
-        <h4 id="tutor-message-name">${msg.name} (${msg.module})</h4>
-        <p id="tutor-message-preview">${msg.message.length > 30 ? msg.message.substring(0, 30) + "..." : msg.message}</p>
-        <small id="tutor-message-time">${msg.time}</small>
-      </div>
-    `;
-
-    convo.addEventListener("click", () => {
-      document.querySelectorAll(".conversation").forEach(c => c.classList.remove("active"));
-      convo.classList.add("active");
-
-      messageView.innerHTML = `
-        <div class="message-header">
-          <h3>${msg.name}</h3>
-          <p>${msg.module} Tutor</p>
-        </div>
-        <div class="message-thread">
-          <p id="tutor-message-text">${msg.message}</p>
-        </div>
-      `;
-    });
-
-    conversationList.appendChild(convo);
-
-    if (index === 0) {
-      // Load first message by default
-      messageView.innerHTML = `
-        <div class="message-header">
-          <h3>${msg.name}</h3>
-          <p>${msg.module} Tutor</p>
-        </div>
-        <div class="message-thread">
-          <p id="tutor-message-text">${msg.message}</p>
-        </div>
-      `;
-    }
-  });
-}
-
-// Call loadMessages somewhere after Firebase init
-loadMessages().catch(console.error);
-window.addEventListener('load', loadMessages);
-
-// Predicate Calculator Script
-let displayStyle = `
-  display: block;
-  display: flex;
-  align-items: center;
-  margin-top: 6px;
-`;
-
-let inputStyles = `
-  .AddedTestInputs {
-    display: flex;
-    align-items: center;
-    margin-top: 6px;
-    text-align: right;
-  }
-  .AddedTestInputs label {
-    padding-right: 39px;
-    flex: 1;
-  }
-  .AddedTestInputs input {
-    margin-left: 5px;
-    width: 60px;
-    padding: 5px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-`;
-
-// Add the styles to the head
-let styleSheet = document.createElement("style");
-styleSheet.type = "text/css";
-styleSheet.innerText = inputStyles;
-document.head.appendChild(styleSheet);
-
-// Global variables
-let subjects = [];
-let instructions = [
-  "Welcome to the Predicate Calculator! Follow these instructions to use calculator correctly",
-  "Step 1: Enter the subject name or code.",
-  "Step 2: Specify how many quizzes, class tests, assignments, and semester tests you have (include unwritten tests)",
-  "If you don't have any tests for a category, enter 0",
-  "Step 3: After clicking 'next', enter your marks on the left and weights on the right for each assessment",
-  "For unwritten tests, enter 0 for the mark but keep the original weight",
-  "The total weight should always be 100% (including unwritten test weights)",
-  "Step 4: Click 'calculate' to compute your predicate mark",
-  "You can view all calculated predicates by clicking 'view results'"
-];
-let currentStep = 0;
-
-// Initialize calculator when page loads
-document.addEventListener('DOMContentLoaded', function() {
-  // Show instructions popup
-  document.getElementById('popup').style.display = 'block';
-  document.getElementById('instructionText').innerText = instructions[currentStep];
-
-  // Hide results div initially
-  document.querySelector('#results').style.display = 'none';
-});
-
-// Dynamic input generation based on number of tests
-function numberOfTests() {
-  const activeElementId = document.activeElement.id;
-
-  if (activeElementId === 'revealQuizzesInput') {
-    const numTests = parseInt(document.getElementById('numQuizzes').value) || 0;
-    document.getElementById('selectedQuizzes').innerHTML = '';
-
-    for (let i = 1; i <= numTests; i++) {
-      document.getElementById('selectedQuizzes').innerHTML += `
-        <div class="AddedTestInputs">
-          <label>Quiz ${i}</label>
-          <input class="markInputs" type="number" id="quiz${i}" min="0" max="100" placeholder="Mark %">
-          <input class="markInputs" type="number" id="quizWeight${i}" min="0" max="100" placeholder="Weight %">
-        </div>`;
-    }
-  }
-  else if (activeElementId === 'revealClassTestInput') {
-    const numTests = parseInt(document.getElementById('numClassTests').value) || 0;
-    document.getElementById('selectedClassTests').innerHTML = '';
-
-    for (let i = 1; i <= numTests; i++) {
-      document.getElementById('selectedClassTests').innerHTML += `
-        <div class="AddedTestInputs">
-          <label>Class Test ${i}</label>
-          <input class="markInputs" type="number" id="classTest${i}" min="0" max="100" placeholder="Mark %">
-          <input class="markInputs" type="number" id="classTestWeight${i}" min="0" max="100" placeholder="Weight %">
-        </div>`;
-    }
-    document.getElementById('assignments').style = displayStyle;
-  }
-  else if (activeElementId === 'revealAssignmentInput') {
-    const numAssignments = parseInt(document.getElementById('numAssignments').value) || 0;
-    document.getElementById('selectedAssignments').innerHTML = '';
-
-    for (let i = 1; i <= numAssignments; i++) {
-      document.getElementById('selectedAssignments').innerHTML += `
-        <div class="AddedTestInputs">
-          <label>Assignment ${i}</label>
-          <input class="markInputs" type="number" id="assignment${i}" min="0" max="100" placeholder="Mark %">
-          <input class="markInputs" type="number" id="assignmentWeight${i}" min="0" max="100" placeholder="Weight %">
-        </div>`;
-    }
-    document.getElementById('semesterTests').style = displayStyle;
-  }
-  else if (activeElementId === 'revealSemTestsInput') {
-    const numSemTests = parseInt(document.getElementById('numSemTests').value) || 0;
-    document.getElementById('selectedSemTests').innerHTML = '';
-
-    for (let i = 1; i <= numSemTests; i++) {
-      document.getElementById('selectedSemTests').innerHTML += `
-        <div class="AddedTestInputs">
-          <label>Semester Test ${i}</label>
-          <input class="markInputs" type="number" id="semTest${i}" min="0" max="100" placeholder="Mark %">
-          <input class="markInputs" type="number" id="semTestWeight${i}" min="0" max="100" placeholder="Weight %">
-        </div>`;
-    }
-  }
-}
-
-// Calculation functions
-function calculateButton() {
-  calculate();
-}
-
-async function calculate() {
-  let predicate = 0;
-  let totalWeight = 0;
-  const subjectName = document.getElementById('subjectName').value.trim();
-
-  if (!subjectName) {
-    alert('Please enter a subject name/code');
-    return;
-  }
-
-  // Calculate for each assessment type
-  const calculations = [
-    { type: 'quiz', countId: 'numQuizzes' },
-    { type: 'classTest', countId: 'numClassTests' },
-    { type: 'assignment', countId: 'numAssignments' },
-    { type: 'semTest', countId: 'numSemTests' }
-  ];
-
-  for (const calc of calculations) {
-    const count = parseInt(document.getElementById(calc.countId).value) || 0;
-
-    for (let i = 1; i <= count; i++) {
-      const mark = parseFloat(document.getElementById(`${calc.type}${i}`).value);
-      const weight = parseFloat(document.getElementById(`${calc.type}Weight${i}`).value);
-
-      if (isNaN(mark)) {
-        alert(`Please enter mark for ${calc.type.replace(/([A-Z])/g, ' $1')} ${i}`);
-        return;
-      }
-
-      if (isNaN(weight)) {
-        alert(`Please enter weight for ${calc.type.replace(/([A-Z])/g, ' $1')} ${i}`);
-        return;
-      }
-
-      predicate += (mark * weight) / 100;
-      totalWeight += weight;
-    }
-  }
-
-  // Validate total weight
-  if (totalWeight !== 100) {
-    alert(`Total weight must be 100% (current: ${totalWeight}%)`);
-    return;
-  }
-
-  const finalPredicate = predicate.toFixed(2);
-
-  // Update or add subject
-  const existingIndex = subjects.findIndex(s => s.name === subjectName);
-  if (existingIndex !== -1) {
-    subjects[existingIndex].predicate = finalPredicate;
-  } else {
-    subjects.push({
-      name: subjectName,
-      predicate: finalPredicate
-    });
-  }
-
-  // Update database if subject code matches
-  updatePredicateOnDatabse(subjectName, finalPredicate);
-
-
-  // Reset form
-  document.getElementById('subjectName').value = '';
-  viewResultsButton();
-}
-
-// View management functions
-function viewResultsButton() {
-  const resultsDiv = document.getElementById('resultsDisplay');
-  resultsDiv.innerHTML = subjects.length === 0
-    ? '<p>No results calculated yet</p>'
-    : subjects.map(subject =>
-        `<p><strong>${subject.name}:</strong> ${subject.predicate}%</p>`
-      ).join('');
-
-  document.querySelector('#results').style.display = 'block';
-  document.querySelector('.PredicateCalculator').style.display = 'none';
-}
-
-function reset() {
-  subjects = [];
-  document.getElementById('resultsDisplay').innerHTML = '';
-  document.getElementById('subjectName').value = '';
-  document.getElementById('selectedQuizzes').innerHTML = '';
-  document.getElementById('selectedClassTests').innerHTML = '';
-  document.getElementById('selectedAssignments').innerHTML = '';
-  document.getElementById('selectedSemTests').innerHTML = '';
-  document.getElementById('numQuizzes').value = '';
-  document.getElementById('numClassTests').value = '';
-  document.getElementById('numAssignments').value = '';
-  document.getElementById('numSemTests').value = '';
-  document.getElementById('assignments').style.display = 'none';
-  document.getElementById('semesterTests').style.display = 'none';
-  document.querySelector('#results').style.display = 'none';
-  document.querySelector('.PredicateCalculator').style.display = 'block';
-}
-
-function back() {
-  document.querySelector('#results').style.display = 'none';
-  document.querySelector('.PredicateCalculator').style.display = 'block';
-}
-
-// Instruction popup functions
-function skipInstructions() {
-  currentStep = instructions.length;
-  document.getElementById('popup').style.display = 'none';
-}
-
-function nextInstruction() {
-  currentStep++;
-  if (currentStep < instructions.length) {
-    document.getElementById('instructionText').innerText = instructions[currentStep];
-  } else {
-    document.getElementById('popup').style.display = 'none';
-  }
-}
-
-async function updatePredicateOnDatabse(subjectName, finalPredicate) {
-  const q = query(moduleRef, where("module-code", "==", subjectName));
-  const querySnapshot = await getDocs(q);
-
-  querySnapshot.forEach(async (document) => {
-    const docId = document.id;
-    const moduleDocRef = doc(db, "Modules", docId);
-
-    await updateDoc(moduleDocRef, {
-      "current-predicate": parseFloat(finalPredicate)
-    });
-
-    alert("Predicate updated successfully");
-  });
-}
-
-
-
-// Make functions available globally
-window.numberOfTests = numberOfTests;
-window.calculateButton = calculateButton;
-window.viewResultsButton = viewResultsButton;
-window.reset = reset;
-window.back = back;
-window.nextInstruction = nextInstruction;
-window.skipInstructions = skipInstructions;
-  </script>
+    <script type="module" src="scripts/firebase-config.js"></script>
+    <script type="module" src="scripts/main-script.js"></script>
+    <script type="module" src="scripts/dashboard-script.js"></script>
+    <script type="module" src="scripts/courses-script.js"></script>
+    <script type="module" src="scripts/schedule-script.js"></script>
+    <script type="module" src="scripts/messages-script.js"></script>
+    <script type="module" src="scripts/calculator-script.js"></script>
+    <script type="module" src="scripts/settings-script.js"></script>
 </body>
 </html>
