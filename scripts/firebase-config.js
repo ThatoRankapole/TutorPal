@@ -54,7 +54,7 @@ const moduleRef = collection(db, "Modules");
 const meetingsRef = collection(db, "meetings");
 const messagesRef = collection(db, "Messages");
 const exercisesRef = collection(db, "Exercises");
-const tutorsRef = collection(db, "Tutors");
+const tutorsRef = collection(db, "Tutor");
 const eventsRef = collection(db, "Events");
 const studentRef = collection(db, "Student");
 

@@ -376,7 +376,7 @@ tr:hover {
     gap: 5px;
 }
 
-.edit-btn, .delete-btn {
+.edit-btn, .delete-btn,.edit-module-btn,.delete-module-btn {
     padding: 5px 10px;
     border: none;
     border-radius: 3px;
@@ -387,12 +387,12 @@ tr:hover {
     gap: 3px;
 }
 
-.edit-btn {
+.edit-btn,.edit-module-btn {
     background-color: var(--medium-blue);
     color: white;
 }
 
-.delete-btn {
+.delete-btn,.delete-module-btn {
     background-color: #e74c3c;
     color: white;
 }
@@ -478,6 +478,8 @@ tr:hover {
 .btn:hover {
     background-color: var(--dark-blue);
 }
+
+
 
 /* Settings Section */
 .settings-container {

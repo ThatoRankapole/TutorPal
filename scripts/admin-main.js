@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const meetingsRef = db.collection("meetings");
     const messagesRef = db.collection("Messages");
     const exercisesRef = db.collection("Exercises");
-    const tutorsRef = db.collection("Tutors");
+    const tutorsRef = db.collection("Tutor");
     const eventsRef = db.collection("Events");
     const studentRef = db.collection("Student");
 
