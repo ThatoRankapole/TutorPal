@@ -137,3 +137,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (loginForm) loginForm.addEventListener('submit', handleLogin);
   if (forgotPasswordLink) forgotPasswordLink.addEventListener('click', handleForgotPassword);
 });
+
+if (performance.navigation.type === 2) {
+  // This page was loaded via back/forward button
+  window.location.replace('index.html');
+}

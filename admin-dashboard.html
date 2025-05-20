@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>TutorPal - Admin Dashboard</title>
+    <link rel="stylesheet" href="styles/admin-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Add these to your HTML head section -->
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics-compat.js"></script>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img width="100" height="90" src="https://img.icons8.com/bubbles/100/training.png" alt="training" />
+                <h2>TutorPal Admin</h2>
+            </div>
+            <nav>
+                <ul>
+                    <li class="active" data-tab="dashboard" onclick="showTab('dashboard')">
+                        <a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li data-tab="students" onclick="showTab('students')">
+                        <a href="#"><i class="fas fa-user-graduate"></i> Students</a>
+                    </li>
+                    <li data-tab="tutors" onclick="showTab('tutors')">
+                        <a href="#"><i class="fas fa-chalkboard-teacher"></i> Tutors</a>
+                    </li>
+                    <li data-tab="modules" onclick="showTab('modules')">
+                        <a href="#"><i class="fas fa-book"></i> Modules</a>
+                    </li>
+                    <li data-tab="settings" onclick="showTab('settings')">
+                        <a href="#"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="index.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="search-bar">
+                    <input id="keyword" type="text" placeholder="Search...">
+                    <button onclick="handleSearch()"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="user-profile">
+                    <span>Welcome, <strong>Admin</strong></span>
+                    <img width="" height="29" src="https://img.icons8.com/material-rounded/24/user-male-circle.png"
+                        alt="user-male-circle" />
+                </div>
+            </header>
+
+            <!-- Content Wrapper -->
+            <div class="content-wrapper">
+                <!-- Dashboard Tab -->
+                <div class="tab-content active" id="dashboard-tab">
+                    <section class="dashboard-cards">
+                        <div class="card" onclick="showTab('students')">
+                            <div class="card-icon blue">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <h3>Total Students</h3>
+                            <p id="total-students">0</p>
+                        </div>
+                        <div class="card" onclick="showTab('tutors')">
+                            <div class="card-icon orange">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <h3>Total Tutors</h3>
+                            <p id="total-tutors">0</p>
+                        </div>
+                        <div class="card" onclick="showTab('modules')">
+                            <div class="card-icon purple">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <h3>Total Modules</h3>
+                            <p id="total-modules">0</p>
+                        </div>
+                    </section>
+
+                    <section class="recent-activities">
+                        <h2><i class="fas fa-history"></i> Recent Activities</h2>
+                        <div id="activity-list" class="activity-list">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Students Tab -->
+                <div class="tab-content" id="students-tab">
+                    <section class="students-section">
+                        <h2><i class="fas fa-user-graduate"></i> Student Management</h2>
+                        <div class="management-controls">
+                            <button id="add-student-btn"><i class="fas fa-plus"></i> Add Student</button>
+                            <button id="refresh-students-btn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                        </div>
+                        <div class="table-container">
+                            <table id="students-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Program</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Tutors Tab -->
+                <div class="tab-content" id="tutors-tab">
+                    <section class="tutors-section">
+                        <h2><i class="fas fa-chalkboard-teacher"></i> Tutor Management</h2>
+                        <div class="management-controls">
+                            <button id="add-tutor-btn"><i class="fas fa-plus"></i> Add Tutor</button>
+                            <button id="refresh-tutors-btn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                        </div>
+                        <div class="table-container">
+                            <table id="tutors-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tutor ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Specialization</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Modules Tab -->
+                <div class="tab-content" id="modules-tab">
+                    <section class="modules-section">
+                        <h2><i class="fas fa-book"></i> Module Management</h2>
+                        <div class="management-controls">
+                            <button id="add-module-btn"><i class="fas fa-plus"></i> Add Module</button>
+                            <button id="refresh-modules-btn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                        </div>
+                        <div class="table-container">
+                            <table id="modules-table">
+                                <thead>
+                                    <tr>
+                                        <th>Module Code</th>
+                                        <th>Module Name</th>
+                                        <th>Credits</th>
+                                        <th>Assigned Tutor</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Settings Tab -->
+                <div class="tab-content" id="settings-tab">
+                    <section class="settings-section">
+                        <h2><i class="fas fa-cog"></i> Settings</h2>
+                        <div class="settings-container">
+                            <div class="settings-card">
+                                <h3><i class="fas fa-user"></i> Profile Information</h3>
+                                <div class="profile-picture-container">
+                                    <img id="profile-picture"
+                                        src="https://img.icons8.com/material-rounded/24/user-male-circle.png"
+                                        alt="Profile Picture">
+                                    <div class="picture-buttons">
+                                        <button id="change-picture-btn" class="icon-btn">
+                                            <i class="fas fa-camera"></i> Change
+                                        </button>
+                                        <button id="remove-picture-btn" class="icon-btn">
+                                            <i class="fas fa-trash"></i> Remove
+                                        </button>
+                                    </div>
+                                    <input type="file" id="profile-picture-upload" accept="image/*"
+                                        style="display: none;">
+                                </div>
+                                <div class="profile-info">
+                                    <div class="info-item">
+                                        <span class="info-label">Name:</span>
+                                        <span id="admin-name" class="info-value">Admin User</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Email:</span>
+                                        <span id="admin-email" class="info-value">admin@tutorpal.edu</span>
+                                    </div>
+                                </div>
+                                <button id="open-password-change" class="change-password-btn">
+                                    <i class="fas fa-key"></i> Change Password
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Student Modal -->
+    <!--edit student-->
+    <div class="modal" id="edit-student-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 id="student-modal-title">Add New Student</h3>
+            <form id="edit-student-form">
+                <input type="hidden" id="student-id">
+
+                <div class="form-group">
+                    <label for="student-number">Student Number</label>
+                    <input type="text" id="student-number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="id-number">ID Number</label>
+                    <input type="text" id="id-number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">First Name</label>
+                    <input type="text" id="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="surname">Surname</label>
+                    <input type="text" id="surname" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="student-email">Email</label>
+                    <input type="email" id="student-email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="course-code">Course Code</label>
+                    <input type="text" id="course-code" required>
+                </div>
+
+                <button type="submit" class="btn">Save</button>
+            </form>
+        </div>
+    </div>
+    <!--add student-->
+    <div class="modal" id="student-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 id="student-modal-title">Add New Student</h3>
+            <form id="student-form">
+                <input type="hidden" id="student-id">
+
+                <div class="form-group">
+                    <label for="student-number">Student Number</label>
+                    <input type="text" id="student-number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="id-number">ID Number</label>
+                    <input type="text" id="id-number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">First Name</label>
+                    <input type="text" id="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="surname">Surname</label>
+                    <input type="text" id="surname" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="student-email">Email</label>
+                    <input type="email" id="student-email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="course-code">Course Code</label>
+                    <input type="text" id="course-code" required>
+                </div>
+
+                <button type="submit" class="btn">Save</button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Tutor Modal -->
+     <!--edit tutor-->
+     <div class="modal" id="tutor-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 id="tutor-modal-title">Add New Tutor</h3>
+            <form id="edit-tutor-form">
+                <input type="hidden" id="tutor-id">
+                <div class="form-group">
+                    <label for="tutor-firstname">First Name</label>
+                    <input type="text" id="tutor-firstname" required>
+                </div>
+                <div class="form-group">
+                    <label for="tutor-lastname">Last Name</label>
+                    <input type="text" id="tutor-lastname" required>
+                </div>
+                <div class="form-group">
+                    <label for="tutor-email">Email</label>
+                    <input type="email" id="tutor-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="tutor-specialization">Specialization</label>
+                    <input type="text" id="tutor-specialization" required>
+                </div>
+                <button type="submit" class="btn">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <!--add tutor-->
+    <div class="modal" id="tutor-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 id="tutor-modal-title">Add New Tutor</h3>
+            <form id="tutor-form">
+                <input type="hidden" id="tutor-id">
+                <div class="form-group">
+                    <label for="tutor-firstname">First Name</label>
+                    <input type="text" id="tutor-firstname" required>
+                </div>
+                <div class="form-group">
+                    <label for="tutor-lastname">Last Name</label>
+                    <input type="text" id="tutor-lastname" required>
+                </div>
+                <div class="form-group">
+                    <label for="tutor-email">Email</label>
+                    <input type="email" id="tutor-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="tutor-specialization">Specialization</label>
+                    <input type="text" id="tutor-specialization" required>
+                </div>
+                <button type="submit" class="btn">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Module Modal -->
+    <div class="modal" id="module-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 id="module-modal-title">Add New Module</h3>
+            <form id="module-form">
+                <input type="hidden" id="module-id">
+                <div class="form-group">
+                    <label for="module-code">Module Code</label>
+                    <input type="text" id="module-code" required>
+                </div>
+                <div class="form-group">
+                    <label for="module-name">Module Name</label>
+                    <input type="text" id="module-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="module-credits">Credits</label>
+                    <input type="number" id="module-credits" required>
+                </div>
+                <div class="form-group">
+                    <label for="module-tutor">Assigned Tutor</label>
+                    <select id="module-tutor" required>
+                        <option value="">Select Tutor</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="scripts/admin-main.js"></script>
+    <script type="module" src="scripts/admin-students.js"></script>
+    <script type="module" src="scripts/admin-tutors.js"></script>
+    <script type="module" src="scripts/admin-modules.js"></script>
+    <script type="module" src="scripts/admin-settings.js"></script>
+</body>
+
+</html>

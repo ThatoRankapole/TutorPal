@@ -13,12 +13,15 @@ import {
   updateDoc,
   deleteDoc,
   orderBy,
-  getDoc
+  getDoc,
+  Timestamp,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import {
   getAuth,
   sendPasswordResetEmail,
-  EmailAuthProvider
+  EmailAuthProvider,
+  createUserWithEmailAndPassword 
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import {
   getStorage,
@@ -77,11 +80,14 @@ export {
   orderBy,
   getDoc,
   collection,
+  Timestamp,
   sendPasswordResetEmail,
   EmailAuthProvider,
+  createUserWithEmailAndPassword,
   storage,
   ref,
   uploadBytes,
   getDownloadURL,
-  deleteObject
+  deleteObject,
+  setDoc
 };

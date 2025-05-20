@@ -12,15 +12,13 @@ import {
 import { formatTimestamp } from './main-script.js';
 
 // Fetch and display recent activities
-async function loadRecentActivities() {
+async function loadRecentActivities(user) {
   try {
-    const user = auth.currentUser;
     if (!user) {
-      console.log("No authenticated user");
+      console.log("No authenticated user - skipping activity load");
       return;
     }
 
-    // Get the student number from email (assuming email is studentNumber@domain)
     const studentNumber = user.email.split('@')[0];
 
     const [messagesSnapshot, meetingsSnapshot, exercisesSnapshot] = await Promise.all([
@@ -31,12 +29,10 @@ async function loadRecentActivities() {
 
     const activityContainer = document.getElementById('activity-list');
     if (!activityContainer) return;
-    
     activityContainer.innerHTML = '';
 
     const notificationsArr = [];
 
-    // Process messages
     messagesSnapshot.forEach(doc => {
       const data = doc.data();
       notificationsArr.push({
@@ -47,7 +43,6 @@ async function loadRecentActivities() {
       });
     });
 
-    // Process meetings
     meetingsSnapshot.forEach(doc => {
       const data = doc.data();
       notificationsArr.push({
@@ -61,7 +56,6 @@ async function loadRecentActivities() {
       });
     });
 
-    // Process exercises
     exercisesSnapshot.forEach(doc => {
       const data = doc.data();
       notificationsArr.push({
@@ -73,10 +67,8 @@ async function loadRecentActivities() {
       });
     });
 
-    // Sort by timestamp (newest first)
     notificationsArr.sort((a, b) => b.timestamp - a.timestamp);
 
-    // Display activities (limited to 10 most recent)
     notificationsArr.slice(0, 10).forEach(item => {
       const activityItem = document.createElement('div');
       let notificationIcon = "";
@@ -115,22 +107,42 @@ async function loadRecentActivities() {
   }
 }
 
-// Logout function
 function setupLogout() {
   const logoutBtn = document.getElementById('logout-btn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
       try {
         await auth.signOut();
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace(`index.html?logout=${Date.now()}`);
       } catch (error) {
         console.error("Logout failed:", error);
+        alert("Logout failed. Please try again.");
       }
     });
   }
 }
 
-// Initialize when DOM is loaded
+// Main init block
 document.addEventListener('DOMContentLoaded', () => {
-  loadRecentActivities();
-  setupLogout();
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      loadRecentActivities(user);
+      setupLogout();
+    } else {
+      window.location.replace('index.html');
+    }
+  });
+
+  // Prevent browser from restoring cached page after logout
+  window.onpageshow = function (event) {
+    if (event.persisted || (window.performance && performance.navigation.type === 2)) {
+      auth.onAuthStateChanged((user) => {
+        if (!user) {
+          window.location.replace('index.html');
+        }
+      });
+    }
+  };
 });
