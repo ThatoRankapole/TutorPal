@@ -57,6 +57,7 @@ const exercisesRef = collection(db, "Exercises");
 const tutorsRef = collection(db, "Tutor");
 const eventsRef = collection(db, "Events");
 const studentRef = collection(db, "Student");
+const adminRef = collection(db, "Admin");
 
 export {
   db,
@@ -67,6 +68,7 @@ export {
   tutorsRef,
   eventsRef,
   studentRef,
+  adminRef, 
   getDocs,
   auth, 
   query,

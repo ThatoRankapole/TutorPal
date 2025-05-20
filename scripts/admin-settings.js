@@ -1,160 +1,231 @@
-// Settings management functionality with Firebase
-document.addEventListener('DOMContentLoaded', function() {
-    const firebaseConfig = {
-        apiKey: "AIzaSyDKxS5yJU-6KiOs_fVO03tXoPC6sLFbnJU",
-        authDomain: "tutorpal-98679.firebaseapp.com",
-        projectId: "tutorpal-98679",
-        storageBucket: "tutorpal-98679.firebasestorage.app",
-        messagingSenderId: "473172390647",
-        appId: "1:473172390647:web:04d7cb1d550a91dc8059f2",
-        measurementId: "G-538MQ597GM"
-    };
+import {
+  db,
+  auth,
+  query,
+  where,
+  getDocs,
+  doc,
+  updateDoc,
+  sendPasswordResetEmail,
+  storage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+  adminRef
+} from './firebase-config.js';
 
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const storage = firebase.storage();
-    const db = firebase.firestore();
+const DEFAULT_PROFILE_PIC = 'https://img.icons8.com/material-rounded/24/user-male-circle.png';
 
-    initSettingsManagement(auth, storage, db);
-});
-
-function initSettingsManagement(auth, storage, db) {
-    loadAdminProfile(auth, db);
-    setupSettingsEventListeners(auth, storage, db);
+async function verifyUser() {
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error('Please sign in to continue');
+  }
+  return user;
 }
 
-function loadAdminProfile(auth, db) {
-    const user = auth.currentUser;
+async function loadAdminProfile() {
+  try {
+    const user = await verifyUser();
+    const emailQuery = query(adminRef, where("admin-email", "==", user.email));
+    const emailSnapshot = await getDocs(emailQuery);
+
+    if (emailSnapshot.empty) {
+      console.log(auth.currentUser?.email);
+      throw new Error('Admin profile not found');
+    }
+
+    const adminDoc = emailSnapshot.docs[0];
+    const adminData = adminDoc.data();
+
+    document.getElementById("admin-name").textContent = (adminData.name || "") + " " + (adminData.surname || "");
+    document.getElementById("admin-email").textContent = adminData["admin-email"] || user.email || "";
+
+    const profilePicture = document.getElementById('profile-picture');
+    profilePicture.src = adminData.profilePictureUrl || DEFAULT_PROFILE_PIC;
+
+  } catch (error) {
+    console.error("Profile load error:", error);
+    alert(error.message);
+  }
+}
+
+async function uploadProfilePicture(file) {
+  const user = await verifyUser();
+
+  try {
+    if (!file.type.match('image.*')) {
+      throw new Error('Only image files are allowed');
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      throw new Error('Image must be less than 2MB');
+    }
+
+    const emailQuery = query(adminRef, where("admin-email", "==", user.email));
+    const emailSnapshot = await getDocs(emailQuery);
+
+    if (emailSnapshot.empty) {
+      throw new Error('Admin record not found');
+    }
+
+    const adminDoc = emailSnapshot.docs[0];
+    const adminData = adminDoc.data();
+
+    if (adminData.profilePictureUrl && adminData.profilePictureUrl !== DEFAULT_PROFILE_PIC) {
+      try {
+        const oldPictureRef = ref(storage, adminData.profilePictureUrl);
+        await deleteObject(oldPictureRef);
+      } catch (error) {
+        console.log("No old picture to delete or already removed");
+      }
+    }
+
+    const storageRef = ref(storage, `profile-pictures/${user.uid}`);
+    await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(storageRef);
+
+    await updateDoc(doc(db, "Admin", adminDoc.id), {
+      profilePictureUrl: downloadURL
+    });
+
+    return downloadURL;
+  } catch (error) {
+    console.error("Upload error:", error);
+    throw error;
+  }
+}
+
+async function removeProfilePicture() {
+  const user = await verifyUser();
+
+  try {
+    const emailQuery = query(adminRef, where("admin-email", "==", user.email));
+    const emailSnapshot = await getDocs(emailQuery);
+
+    if (emailSnapshot.empty) {
+      throw new Error('Admin record not found');
+    }
+
+    const adminDoc = emailSnapshot.docs[0];
+    const adminData = adminDoc.data();
+    const currentPicUrl = adminData.profilePictureUrl;
+
+    if (currentPicUrl && currentPicUrl !== DEFAULT_PROFILE_PIC) {
+      try {
+        const picRef = ref(storage, currentPicUrl);
+        await deleteObject(picRef);
+      } catch (error) {
+        console.log("Picture already removed or not found");
+      }
+    }
+
+    await updateDoc(doc(db, "Admin", adminDoc.id), {
+      profilePictureUrl: DEFAULT_PROFILE_PIC
+    });
+
+    return DEFAULT_PROFILE_PIC;
+  } catch (error) {
+    console.error("Remove error:", error);
+    throw error;
+  }
+}
+
+function setupProfilePictureHandlers() {
+  const changeBtn = document.getElementById('change-picture-btn');
+  const removeBtn = document.getElementById('remove-picture-btn');
+  const uploadInput = document.getElementById('profile-picture-upload');
+
+  if (changeBtn && uploadInput) {
+    changeBtn.addEventListener('click', () => uploadInput.click());
+
+    uploadInput.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      try {
+        changeBtn.disabled = true;
+        changeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+        const url = await uploadProfilePicture(file);
+        document.getElementById('profile-picture').src = url;
+        alert('Profile picture updated successfully!');
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        changeBtn.disabled = false;
+        changeBtn.innerHTML = '<i class="fas fa-camera"></i> Change';
+        uploadInput.value = '';
+      }
+    });
+  }
+
+  if (removeBtn) {
+    removeBtn.addEventListener('click', async () => {
+      if (!confirm('Reset to default profile picture?')) return;
+
+      try {
+        removeBtn.disabled = true;
+        removeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removing...';
+
+        const url = await removeProfilePicture();
+        document.getElementById('profile-picture').src = url;
+        alert('Profile picture reset to default!');
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        removeBtn.disabled = false;
+        removeBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
+      }
+    });
+  }
+}
+
+function setupPasswordReset() {
+  const changePasswordBtn = document.getElementById('open-password-change');
+  if (!changePasswordBtn) return;
+
+  changePasswordBtn.addEventListener('click', async () => {
+    try {
+      const user = await verifyUser();
+      if (!user.email) {
+        throw new Error('Email not available');
+      }
+
+      changePasswordBtn.disabled = true;
+      changePasswordBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+      await sendPasswordResetEmail(auth, user.email);
+      alert(`Password reset email sent to ${user.email}. Check your inbox.`);
+
+    } catch (error) {
+      console.error("Password reset error:", error);
+
+      let errorMessage = "Failed to send password reset email";
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = "No account found with this email";
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = "Too many attempts. Try again later.";
+          break;
+        default:
+          errorMessage = error.message || errorMessage;
+      }
+      alert(`Error: ${errorMessage}`);
+    } finally {
+      changePasswordBtn.innerHTML = '<i class="fas fa-key"></i> Change Password';
+      changePasswordBtn.disabled = false;
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  auth.onAuthStateChanged((user) => {
     if (user) {
-        document.getElementById('admin-name').textContent = user.displayName || 'Admin User';
-        document.getElementById('admin-email').textContent = user.email;
-        
-        // Load profile picture if available
-        if (user.photoURL) {
-            document.getElementById('profile-picture').src = user.photoURL;
-        }
+      loadAdminProfile();
+      setupProfilePictureHandlers();
+      setupPasswordReset();
     }
-}
-
-function setupSettingsEventListeners(auth, storage, db) {
-    // Profile picture change
-    document.getElementById('change-picture-btn').addEventListener('click', () => {
-        document.getElementById('profile-picture-upload').click();
-    });
-    
-    document.getElementById('profile-picture-upload').addEventListener('change', (e) => {
-        uploadProfilePicture(auth, storage, e.target.files[0]);
-    });
-    
-    // Profile picture removal
-    document.getElementById('remove-picture-btn').addEventListener('click', () => {
-        removeProfilePicture(auth, storage);
-    });
-    
-    // Password change
-    document.getElementById('open-password-change').addEventListener('click', () => {
-        showPasswordChangeModal();
-    });
-    
-    document.getElementById('password-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        changePassword(auth);
-    });
-    
-    // Modal close handlers
-    document.querySelector('#password-modal .close-modal').addEventListener('click', () => {
-        document.getElementById('password-modal').style.display = 'none';
-    });
-    
-    window.addEventListener('click', (event) => {
-        if (event.target === document.getElementById('password-modal')) {
-            document.getElementById('password-modal').style.display = 'none';
-        }
-    });
-}
-
-function uploadProfilePicture(auth, storage, file) {
-    if (!file) return;
-    
-    const user = auth.currentUser;
-    if (!user) return;
-    
-    const storageRef = storage.ref(`profile-pictures/${user.uid}`);
-    const uploadTask = storageRef.put(file);
-    
-    uploadTask.on('state_changed',
-        (snapshot) => {
-            // Progress monitoring can be added here
-        },
-        (error) => {
-            console.error("Upload error:", error);
-            showAlert('Error uploading profile picture', 'error');
-        },
-        () => {
-            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                user.updateProfile({
-                    photoURL: downloadURL
-                }).then(() => {
-                    document.getElementById('profile-picture').src = downloadURL;
-                    showAlert('Profile picture updated successfully', 'success');
-                }).catch((error) => {
-                    console.error("Error updating profile:", error);
-                    showAlert('Error updating profile', 'error');
-                });
-            });
-        }
-    );
-}
-
-function removeProfilePicture(auth, storage) {
-    const user = auth.currentUser;
-    if (!user || !user.photoURL) return;
-    
-    if (confirm('Are you sure you want to remove your profile picture?')) {
-        // Delete from storage if it's a Firebase Storage URL
-        if (user.photoURL.includes('firebasestorage.googleapis.com')) {
-            const storageRef = storage.refFromURL(user.photoURL);
-            storageRef.delete().catch(error => {
-                console.error("Error deleting old image:", error);
-            });
-        }
-        
-        user.updateProfile({
-            photoURL: null
-        }).then(() => {
-            document.getElementById('profile-picture').src = 'https://img.icons8.com/material-rounded/24/user-male-circle.png';
-            showAlert('Profile picture removed successfully', 'success');
-        }).catch((error) => {
-            console.error("Error removing profile picture:", error);
-            showAlert('Error removing profile picture', 'error');
-        });
-    }
-}
-
-function showPasswordChangeModal() {
-    document.getElementById('password-form').reset();
-    document.getElementById('password-modal').style.display = 'flex';
-}
-
-function changePassword(auth) {
-    const email = auth.currentUser?.email;
-    if (!email) return;
-    
-    auth.sendPasswordResetEmail(email)
-        .then(() => {
-            showAlert('Password reset email sent. Please check your inbox.', 'success');
-            document.getElementById('password-modal').style.display = 'none';
-        })
-        .catch((error) => {
-            console.error("Error sending reset email:", error);
-            showAlert('Error sending password reset email', 'error');
-        });
-}
-
-function showAlert(message, type) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert ${type}`;
-    alertDiv.textContent = message;
-    document.body.appendChild(alertDiv);
-    setTimeout(() => alertDiv.remove(), 3000);
-}
+  });
+});

@@ -13,7 +13,8 @@ import {
     auth,
     createUserWithEmailAndPassword,
     sendPasswordResetEmail
-} from "./firebase-config.js";
+} from './firebase-config.js';
+
 
 // Student management functionality with Firebase
 document.addEventListener('DOMContentLoaded', function () {
@@ -33,9 +34,9 @@ document.addEventListener('DOMContentLoaded', function () {
         tableBody.innerHTML = '<tr><td colspan="5">Loading students...</td></tr>';
 
         // Get reference to the students collection
-        const studentsRef = firebase.firestore().collection('Student');
+        const studentsRef = collection(db, "Student");
 
-        studentsRef.get().then((querySnapshot) => {
+        getDocs(studentsRef).then((querySnapshot) => {
             tableBody.innerHTML = '';
 
             if (querySnapshot.empty) {
@@ -44,7 +45,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Update dashboard count
             document.getElementById('total-students').textContent = querySnapshot.size;
 
             querySnapshot.forEach((doc) => {
@@ -52,29 +52,30 @@ document.addEventListener('DOMContentLoaded', function () {
                 const row = document.createElement('tr');
 
                 row.innerHTML = `
-                <td>${student['student-number'] || 'N/A'}</td>
-                <td>${student.name || ''} ${student.surname || ''}</td>
-                <td>${student['student-email'] || 'N/A'}</td>
-                <td>${student['course-code']}</td>
-                <td class="action-buttons">
-                    <button class="edit-btn" data-id="${doc.id}">
-                        <i class="fas fa-edit"></i> Edit
-                    </button>
-                    <button class="delete-btn" onclick="deleteStudent('${doc.id}', '${student.name} ${student.surname}', this)">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
-                </td>
-            `;
+            <td>${student['student-number'] || 'N/A'}</td>
+            <td>${student.name || ''} ${student.surname || ''}</td>
+            <td>${student['student-email'] || 'N/A'}</td>
+            <td>${student['course-code']}</td>
+            <td class="action-buttons">
+                <button class="edit-btn" data-id="${doc.id}">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="delete-btn" onclick="deleteStudent('${doc.id}', '${student.name} ${student.surname}', this)">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </td>
+        `;
                 tableBody.appendChild(row);
             });
         }).catch((error) => {
             console.error("Error loading students: ", error);
             tableBody.innerHTML = '<tr><td colspan="5">Error loading students</td></tr>';
         });
+
     });
 
-     // Add Student Button Click Handler
-    document.getElementById('add-student-btn').addEventListener('click', function() {
+    // Add Student Button Click Handler
+    document.getElementById('add-student-btn').addEventListener('click', function () {
         // Reset form and set title for adding new student
         document.getElementById('student-form').reset();
         document.getElementById('student-id').value = '';
@@ -105,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Set modal title for editing
                 document.getElementById("student-modal-title").textContent = "Edit Student";
-                
+
                 // Show modal
                 document.getElementById("student-modal").style.display = "flex";
             }
@@ -113,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Form Submission Handler (for both add and edit)
-    document.getElementById('student-form').addEventListener('submit', async function(e) {
+    document.getElementById('student-form').addEventListener('submit', async function (e) {
         e.preventDefault();
 
         const studentId = document.getElementById('student-id').value.trim();
@@ -165,23 +166,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Add new student
                 // Generate temporary password
                 const randomPassword = Math.random().toString(36).slice(-10);
-                
+
                 // Create auth user
                 await createUserWithEmailAndPassword(auth, email, randomPassword);
-                
+
                 // Add to Firestore
                 await setDoc(doc(db, 'Student', studentNumber), studentData);
-                
+
                 // Send password reset email
                 await sendPasswordResetEmail(auth, email);
-                
+
                 alert(`Student ${name} ${surname} added successfully!\nA password reset email has been sent to ${email}.`);
             }
 
             // Close modal and refresh list
             document.getElementById('student-modal').style.display = 'none';
             document.getElementById('refresh-students-btn').click();
-            
+
         } catch (error) {
             console.error('Error saving student:', error);
             alert('Error saving student: ' + error.message);
@@ -189,52 +190,52 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Close Modal Handler
-    document.querySelector('#student-modal .close-modal').addEventListener('click', function() {
+    document.querySelector('#student-modal .close-modal').addEventListener('click', function () {
         document.getElementById('student-modal').style.display = 'none';
         document.getElementById('student-form').reset();
     });
 
     //delete sttudent
     window.deleteStudent = async function (studentId, studentName, btnElement) {
-    const confirmDelete = confirm(`Are you sure you want to delete ${studentName}?`);
-    if (!confirmDelete) return;
+        const confirmDelete = confirm(`Are you sure you want to delete ${studentName}?`);
+        if (!confirmDelete) return;
 
-    try {
-        // First get the student document to access the email
-        const studentRef = doc(db, "Student", studentId);
-        const studentSnap = await getDoc(studentRef);
-        
-        if (!studentSnap.exists()) {
-            throw new Error("Student not found");
+        try {
+            // First get the student document to access the email
+            const studentRef = doc(db, "Student", studentId);
+            const studentSnap = await getDoc(studentRef);
+
+            if (!studentSnap.exists()) {
+                throw new Error("Student not found");
+            }
+
+            const studentEmail = studentSnap.data()['student-email'];
+
+            // Delete from Firestore
+            await deleteDoc(studentRef);
+
+            // Note: To delete from Firebase Authentication, you would need a Cloud Function
+            // as client-side can't directly delete users. Here we just log the email.
+            console.log(`Student account to delete from auth: ${studentEmail}`);
+            // In production, you would call a Cloud Function here
+
+            // Remove row from table
+            if (btnElement && btnElement.closest) {
+                const row = btnElement.closest('tr');
+                if (row) row.remove();
+            }
+
+            // Update the student count
+            const studentCountElement = document.getElementById('total-students');
+            if (studentCountElement) {
+                const currentCount = parseInt(studentCountElement.textContent) || 0;
+                studentCountElement.textContent = Math.max(0, currentCount - 1);
+            }
+
+            alert(`${studentName} deleted successfully`);
+        } catch (error) {
+            console.error("Error deleting student:", error);
+            alert("Error deleting student: " + error.message);
         }
-
-        const studentEmail = studentSnap.data()['student-email'];
-
-        // Delete from Firestore
-        await deleteDoc(studentRef);
-
-        // Note: To delete from Firebase Authentication, you would need a Cloud Function
-        // as client-side can't directly delete users. Here we just log the email.
-        console.log(`Student account to delete from auth: ${studentEmail}`);
-        // In production, you would call a Cloud Function here
-
-        // Remove row from table
-        if (btnElement && btnElement.closest) {
-            const row = btnElement.closest('tr');
-            if (row) row.remove();
-        }
-
-        // Update the student count
-        const studentCountElement = document.getElementById('total-students');
-        if (studentCountElement) {
-            const currentCount = parseInt(studentCountElement.textContent) || 0;
-            studentCountElement.textContent = Math.max(0, currentCount - 1);
-        }
-
-        alert(`${studentName} deleted successfully`);
-    } catch (error) {
-        console.error("Error deleting student:", error);
-        alert("Error deleting student: " + error.message);
-    }
-};
+    };
 });
