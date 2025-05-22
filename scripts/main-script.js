@@ -1,6 +1,6 @@
+// scripts/main-script.js
 import { 
   db,
-  auth,
   moduleRef,
   meetingsRef,
   messagesRef,
@@ -67,28 +67,7 @@ async function initializeCounters() {
   }
 }
 
-// Load dashboard content for authenticated users
-async function loadDashboardContent() {
-  initializeCounters();
-  // Add other initialization functions here
-}
-
-// Authentication state handler
-function setupAuthStateListener() {
-  auth.onAuthStateChanged((user) => {
-    if (!user) {
-      // If not authenticated, redirect to login page
-      if (!window.location.pathname.includes('index.html')) {
-        window.location.replace('index.html');
-      }
-    } else {
-      // User is authenticated, proceed with loading the dashboard
-      loadDashboardContent();
-    }
-  });
-}
-
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  setupAuthStateListener();
+  initializeCounters();
 });

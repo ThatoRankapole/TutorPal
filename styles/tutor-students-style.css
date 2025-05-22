@@ -1,0 +1,26 @@
+/* Students table styles (same as modules table) */
+.table-container {
+  margin-top: 15px;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--white);
+}
+
+thead {
+  background-color: var(--dull-red);
+  color: var(--white);
+}
+
+th, td {
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--mid-grey);
+  text-align: left;
+}
+
+th:last-child, td:last-child {
+  text-align: center;
+}

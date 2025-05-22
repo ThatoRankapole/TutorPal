@@ -1,46 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>TutorPal - Student Dashboard</title>
     <link rel="stylesheet" href="styles/student-dashboard-style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+    <link rel="stylesheet" href="styles/courses-style.css">
+    <link rel="stylesheet" href="styles/schedule-style.css">
     <link rel="stylesheet" href="styles/calendar-style.css">
+    <link rel="stylesheet" href="styles/messages-style.css">
+    <link rel="stylesheet" href="styles/calculator-style.css">
+    <link rel="stylesheet" href="styles/settings-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
 </head>
+
 <body>
     <div class="dashboard-container">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <img width="100" height="100" src="https://img.icons8.com/bubbles/100/training.png" alt="training"/>
+                <img width="100" height="100" src="https://img.icons8.com/bubbles/100/training.png" alt="training" />
                 <h2>TutorPal</h2>
             </div>
             <nav>
-              <ul>
-                <li class="active" data-tab="dashboard" onclick="showTab('dashboard')">
-                  <a href="#"><i class="fas fa-home"></i> Dashboard</a>
-                </li>
-                <li data-tab="courses" onclick="showTab('courses')">
-                  <a href="#"><i class="fas fa-book"></i> My Courses</a>
-                </li>
-                <li data-tab="schedule" onclick="showTab('schedule')">
-                  <a href="#"><i class="fas fa-calendar-alt"></i> Schedule</a>
-                </li>
-                <li data-tab="messages" onclick="showTab('messages')">
-                  <a href="#"><i class="fas fa-comments"></i> Messages</a>
-                </li>
-                <li data-tab="predicate-calculator" onclick="showTab('predicate-calculator')">
-                  <a href="#"><i class="fa-solid fa-calculator"></i> Predicate Calculator</a>
-                </li>
-                <li data-tab="settings" onclick="showTab('settings')">
-                  <a href="#"><i class="fas fa-cog"></i> Settings</a>
-                </li>
-              </ul>
+                <ul>
+                    <li class="active" data-tab="dashboard" onclick="showTab('dashboard')">
+                        <a href="#"><i class="fas fa-home"></i> Dashboard</a>
+                    </li>
+                    <li data-tab="courses" onclick="showTab('courses')">
+                        <a href="#"><i class="fas fa-book"></i> My Courses</a>
+                    </li>
+                    <li data-tab="schedule" onclick="showTab('schedule')">
+                        <a href="#"><i class="fas fa-calendar-alt"></i> Schedule</a>
+                    </li>
+                    <li data-tab="messages" onclick="showTab('messages')">
+                        <a href="#"><i class="fas fa-comments"></i> Messages</a>
+                    </li>
+                    <li data-tab="predicate-calculator" onclick="showTab('predicate-calculator')">
+                        <a href="#"><i class="fa-solid fa-calculator"></i> Predicate Calculator</a>
+                    </li>
+                    <li data-tab="settings" onclick="showTab('settings')">
+                        <a href="#"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
             </nav>
             <div class="sidebar-footer">
                 <a href="index.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -56,7 +63,8 @@
                 </div>
                 <div class="user-profile">
                     <span>Welcome, <strong>Student Name</strong></span>
-                    <img width="29" height="29" src="https://img.icons8.com/material-rounded/24/user-male-circle.png" alt="user-male-circle"/>
+                    <img width="29" height="29" src="https://img.icons8.com/material-rounded/24/user-male-circle.png"
+                        alt="user-male-circle" />
                 </div>
             </header>
 
@@ -111,31 +119,36 @@
                             <button id="add-event-btn"><i class="fas fa-plus"></i> Add Event</button>
                         </div>
                         <div id="calendar-container">
-                          <div id="calendar-header">
-                            <button onclick="changeMonth(-1)">&#8592;</button>
-                            <span id="month-year"></span>
-                            <button onclick="changeMonth(1)">&#8594;</button>
-                          </div>
-                          <table id="calendar">
-                            <thead>
-                              <tr>
-                                <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th>
-                                <th>Thu</th><th>Fri</th><th>Sat</th>
-                              </tr>
-                            </thead>
-                            <tbody id="calendar-body"></tbody>
-                          </table>
+                            <div id="calendar-header">
+                                <button onclick="changeMonth(-1)">&#8592;</button>
+                                <span id="month-year"></span>
+                                <button onclick="changeMonth(1)">&#8594;</button>
+                            </div>
+                            <table id="calendar">
+                                <thead>
+                                    <tr>
+                                        <th>Sun</th>
+                                        <th>Mon</th>
+                                        <th>Tue</th>
+                                        <th>Wed</th>
+                                        <th>Thu</th>
+                                        <th>Fri</th>
+                                        <th>Sat</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="calendar-body"></tbody>
+                            </table>
                         </div>
                         <!--Add Event Tab-->
                         <div id="event-modal" class="modal">
-                          <div class="modal-content">
-                            <span class="close" id="close-modal">&times;</span>
-                            <h3 id="event-manipulation-heading"></h3>
-                            <input type="text" id="event-name" placeholder="Event Name" required />
-                            <input type="date" id="event-date" required />
-                            <textarea id="event-description" placeholder="Event Description"></textarea>
-                            <button id="save-event-btn">Save Event</button>
-                          </div>
+                            <div class="modal-content">
+                                <span class="close" id="close-modal">&times;</span>
+                                <h3 id="event-manipulation-heading"></h3>
+                                <input type="text" id="event-name" placeholder="Event Name" required />
+                                <input type="date" id="event-date" required />
+                                <textarea id="event-description" placeholder="Event Description"></textarea>
+                                <button id="save-event-btn">Save Event</button>
+                            </div>
                         </div>
                     </section>
                 </div>
@@ -145,12 +158,10 @@
                     <section class="messages-section">
                         <h2><i class="fas fa-comments"></i> Messages</h2>
                         <div class="messages-container">
-                            <!-- This will be populated with a list of conversations dynamically -->
                             <div class="conversation-list">
                                 <!-- JavaScript will inject .conversation items here -->
                             </div>
 
-                            <!-- This will show the selected message dynamically -->
                             <div class="message-view">
                                 <!-- JavaScript will inject message content here -->
                             </div>
@@ -166,45 +177,52 @@
                             <form class="CalculatorForm">
                                 <div class="subjectInputs">
                                     <label id="subjNameHeader">Subject Name/Code</label><br>
-                                    <input type="text" id="subjectName" placeholder="eg:Life skills/LFS125X" required><br>
+                                    <input type="text" id="subjectName" placeholder="eg:Life skills/LFS125X"
+                                        required><br>
                                     <p id="instruction">Enter number of assessments then click next.<br>
-                                    Enter assessment percentage on the left<br>
-                                    Enter assessment weight on the right<br>
-                                    Enter even unwritten assessment weights with 0 as the mark<br>
+                                        Enter assessment percentage on the left<br>
+                                        Enter assessment weight on the right<br>
+                                        Enter even unwritten assessment weights with 0 as the mark<br>
                                     </p>
                                 </div>
 
                                 <div class="testInputs" id="quizzes">
                                     <label>Number of Quizzes</label>
                                     <input class="markInputs" type="number" id="numQuizzes" min="0" max="50">
-                                    <button class="nextButton" type="button" id="revealQuizzesInput" onclick="numberOfTests()">next</button>
+                                    <button class="nextButton" type="button" id="revealQuizzesInput"
+                                        onclick="numberOfTests()">next</button>
                                 </div>
                                 <span id="selectedQuizzes"></span>
 
                                 <div class="testInputs" id="classTests">
                                     <label>Number of Class tests</label>
                                     <input class="markInputs" type="number" id="numClassTests" min="0" max="50">
-                                    <button class="nextButton" type="button" id="revealClassTestInput" onclick="numberOfTests()">next</button>
+                                    <button class="nextButton" type="button" id="revealClassTestInput"
+                                        onclick="numberOfTests()">next</button>
                                 </div>
                                 <span id="selectedClassTests"></span>
 
                                 <div class="testInputs" id="assignments">
                                     <label>Number of assignments</label>
                                     <input class="markInputs" type="number" id="numAssignments" min="0" max="50">
-                                    <button class="nextButton" type="button" id="revealAssignmentInput" onclick="numberOfTests()">next</button>
+                                    <button class="nextButton" type="button" id="revealAssignmentInput"
+                                        onclick="numberOfTests()">next</button>
                                 </div>
                                 <span id="selectedAssignments"></span>
 
                                 <div class="testInputs" id="semesterTests">
                                     <label>Number of semester tests</label>
                                     <input class="markInputs" type="number" id="numSemTests" min="0" max="50">
-                                    <button class="nextButton" type="button" id="revealSemTestsInput" onclick="numberOfTests()">next</button>
+                                    <button class="nextButton" type="button" id="revealSemTestsInput"
+                                        onclick="numberOfTests()">next</button>
                                 </div>
                                 <span id="selectedSemTests"></span>
 
                                 <div class="homeButtons">
-                                    <button class="homeButton" type="button" id="calculate" onclick="calculateButton()">calculate</button>
-                                    <button class="homeButton" type="button" id="view" onclick="viewResultsButton()">view results</button>
+                                    <button class="homeButton" type="button" id="calculate"
+                                        onclick="calculateButton()">calculate</button>
+                                    <button class="homeButton" type="button" id="view"
+                                        onclick="viewResultsButton()">view results</button>
                                 </div>
                             </form>
                         </div>
@@ -226,53 +244,56 @@
                     </section>
                 </div>
                 <!-- Settings Tab -->
-<div class="tab-content" id="settings-tab">
-    <section class="settings-section">
-        <h2><i class="fas fa-cog"></i> Settings</h2>
+                <div class="tab-content" id="settings-tab">
+                    <section class="settings-section">
+                        <h2><i class="fas fa-cog"></i> Settings</h2>
 
-        <div class="settings-container">
-            <!-- Profile Section -->
-            <div class="settings-card">
-                <h3><i class="fas fa-user"></i> Profile Information</h3>
-                <div class="profile-picture-container">
-                    <img id="profile-picture" src="https://img.icons8.com/material-rounded/24/user-male-circle.png" alt="Profile Picture">
-                    <div class="picture-buttons">
-                        <button id="change-picture-btn" class="icon-btn">
-                            <i class="fas fa-camera"></i> Change
-                        </button>
-                        <button id="remove-picture-btn" class="icon-btn">
-                            <i class="fas fa-trash"></i> Remove
-                        </button>
-                    </div>
-                    <input type="file" id="profile-picture-upload" accept="image/*" style="display: none;">
+                        <div class="settings-container">
+                            <!-- Profile Section -->
+                            <div class="settings-card">
+                                <h3><i class="fas fa-user"></i> Profile Information</h3>
+                                <div class="profile-picture-container">
+                                    <img id="profile-picture"
+                                        src="https://img.icons8.com/material-rounded/24/user-male-circle.png"
+                                        alt="Profile Picture">
+                                    <div class="picture-buttons">
+                                        <button id="change-picture-btn" class="icon-btn">
+                                            <i class="fas fa-camera"></i> Change
+                                        </button>
+                                        <button id="remove-picture-btn" class="icon-btn">
+                                            <i class="fas fa-trash"></i> Remove
+                                        </button>
+                                    </div>
+                                    <input type="file" id="profile-picture-upload" accept="image/*"
+                                        style="display: none;">
+                                </div>
+
+                                <div class="profile-info">
+                                    <div class="info-item">
+                                        <span class="info-label">Name:</span>
+                                        <span id="student-name" class="info-value"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Surname:</span>
+                                        <span id="student-surname" class="info-value"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Student Number:</span>
+                                        <span id="student-number" class="info-value"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Email:</span>
+                                        <span id="student-email" class="info-value"></span>
+                                    </div>
+                                </div>
+
+                                <button id="open-password-change" class="change-password-btn">
+                                    <i class="fas fa-key"></i> Change Password
+                                </button>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-
-                <div class="profile-info">
-                    <div class="info-item">
-                        <span class="info-label">Name:</span>
-                        <span id="student-name" class="info-value"></span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Surname:</span>
-                        <span id="student-surname" class="info-value"></span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Student Number:</span>
-                        <span id="student-number" class="info-value"></span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Email:</span>
-                        <span id="student-email" class="info-value"></span>
-                    </div>
-                </div>
-
-                <button id="open-password-change" class="change-password-btn">
-                    <i class="fas fa-key"></i> Change Password
-                </button>
-            </div>
-        </div>
-    </section>
-</div>
             </div>
         </main>
     </div>
@@ -311,4 +332,5 @@
     <script type="module" src="scripts/calculator-script.js"></script>
     <script type="module" src="scripts/settings-script.js"></script>
 </body>
+
 </html>

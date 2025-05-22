@@ -96,7 +96,7 @@
 #calendar th {
     padding: 10px;
     text-align: center;
-    color: #7f8c8d;
+    color: #ffffff;
     font-weight: normal;
     border: 1px solid var(--mid-grey, #ddd);
 }
@@ -312,4 +312,49 @@
     .calendar-event {
         font-size: 0.7rem;
     }
+}
+/* Add Session Button */
+#add-session-btn {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s;
+    margin-left: 10px;
+}
+
+#add-session-btn i {
+    margin-right: 5px;
+}
+
+#add-session-btn:hover {
+    background-color: #27ae60;
+}
+
+/* Calendar cell styling for scheduled sessions */
+#calendar td.session-day {
+    background-color: #ffeaa7; /* Light yellow for session days */
+    border-color: #f6c90e;
+    position: relative;
+}
+
+#calendar td.session-day:not(.today):hover {
+    background-color: #ffdd76;
+}
+
+/* Indicator for session (a dot like event-day) */
+#calendar td.session-day::after {
+    content: '';
+    position: absolute;
+    bottom: 3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    background: #e67e22;
+    border-radius: 50%;
 }

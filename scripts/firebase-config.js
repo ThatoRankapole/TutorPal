@@ -1,5 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+
+// Firestore
 import {
   getFirestore,
   collection,
@@ -17,12 +19,17 @@ import {
   Timestamp,
   setDoc
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+// Auth (correct place for signInWithEmailAndPassword)
 import {
   getAuth,
   sendPasswordResetEmail,
   EmailAuthProvider,
-  createUserWithEmailAndPassword 
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+// Storage
 import {
   getStorage,
   ref,
@@ -42,14 +49,14 @@ const firebaseConfig = {
   measurementId: "G-538MQ597GM"
 };
 
-// Initialize Firebase
+// Initialize Firebase app & services
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// Collection references
+// Collection references (use exact collection names you have)
 const moduleRef = collection(db, "Modules");
 const meetingsRef = collection(db, "meetings");
 const messagesRef = collection(db, "Messages");
@@ -68,9 +75,9 @@ export {
   tutorsRef,
   eventsRef,
   studentRef,
-  adminRef, 
+  adminRef,
   getDocs,
-  auth, 
+  auth,
   query,
   where,
   getCountFromServer,
@@ -86,10 +93,12 @@ export {
   sendPasswordResetEmail,
   EmailAuthProvider,
   createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   storage,
   ref,
   uploadBytes,
   getDownloadURL,
   deleteObject,
-  setDoc
+  setDoc,
+  app
 };

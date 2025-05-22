@@ -1,0 +1,174 @@
+.calculator-section {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.calculator-section h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.calculator-section h2 i {
+    margin-right: 10px;
+    color: #3498db;
+}
+
+.PredicateCalculator {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.CalculatorForm {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.subjectInputs {
+    margin-bottom: 20px;
+}
+
+.subjectInputs label {
+    font-weight: 500;
+    color: #2c3e50;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.subjectInputs input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+#instruction {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    margin-top: 5px;
+}
+
+.testInputs {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.testInputs label {
+    margin-right: 10px;
+    font-weight: 500;
+    color: #2c3e50;
+    min-width: 150px;
+}
+
+.markInputs {
+    width: 60px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.nextButton {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.nextButton:hover {
+    background-color: #2980b9;
+}
+
+.homeButtons {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    gap: 15px;
+}
+
+.homeButton {
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.homeButton:hover {
+    background-color: #34495e;
+}
+
+#results {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    text-align: center;
+    display: none;
+}
+
+#results h1 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+#resultsDisplay {
+    font-size: 1.2rem;
+    margin: 20px 0;
+    display: block;
+}
+
+.resultButtons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.popup-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    max-width: 400px;
+    text-align: center;
+    display: none;
+}
+
+.popup-box p {
+    margin-bottom: 20px;
+}
+
+.popup-box button {
+    margin: 0 5px;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.popup-box button:first-child {
+    background-color: #3498db;
+    color: white;
+}
+
+.popup-box button:last-child {
+    background-color: #e74c3c;
+    color: white;
+}
