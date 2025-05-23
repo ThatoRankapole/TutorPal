@@ -1,14 +1,41 @@
-// scripts/courses-script.js
 import {
   db,
   moduleRef,
   tutorsRef,
-  getDocs
+  getDocs,
+  getDoc,
+  doc,
+  auth,
+  collection,
+  query,
+  where,
+  onAuthStateChanged
 } from './firebase-config.js';
 
-// Fetch and display courses
-async function loadCourses() {
+// Fetch and display courses for the logged-in student
+async function loadCoursesForUser(user) {
   try {
+    const userEmail = user.email;
+
+    // Query Student document by email
+    const studentQuery = query(collection(db, "Student"), where("student-email", "==", userEmail));
+    const studentSnapshot = await getDocs(studentQuery);
+
+    if (studentSnapshot.empty) {
+      console.error("Student document not found for email:", userEmail);
+      return;
+    }
+
+    const studentDoc = studentSnapshot.docs[0];
+    const studentData = studentDoc.data();
+    const enrolledModulesString = studentData.modules || "";
+    const enrolledModules = enrolledModulesString.split(":").filter(Boolean);
+
+    if (enrolledModules.length === 0) {
+      document.getElementById("course-list").innerHTML = "<p>No modules found.</p>";
+      return;
+    }
+
     const [moduleSnapshot, tutorSnapshot] = await Promise.all([
       getDocs(moduleRef),
       getDocs(tutorsRef)
@@ -21,11 +48,13 @@ async function loadCourses() {
 
     moduleSnapshot.forEach((doc) => {
       const data = doc.data();
-      const moduleName = data["module-code"];
-      let consultationNeed = data["consultation-needed"] ? "Yes" : "No";
+      const moduleCode = doc.id;
 
-      const tutor = tutors.find(t => t["module-code"] === moduleName);
-      const tutorNames = tutor ? tutor["name"] + " " + tutor["surname"] : "Unassigned";
+      if (!enrolledModules.includes(moduleCode)) return;
+
+      const consultationNeed = data["consultation-needed"] ? "Yes" : "No";
+      const tutor = tutors.find(t => t["module-code"] === moduleCode);
+      const tutorNames = tutor ? `${tutor["name"]} ${tutor["surname"]}` : "Unassigned";
 
       const courseCard = document.createElement("div");
       courseCard.className = "course-card";
@@ -44,7 +73,7 @@ async function loadCourses() {
           </ul>
         </div>
         <div class="course-tutor">
-          <p>Tutor: ${tutor ? tutorNames : "Unassigned"}
+          <p>Tutor: ${tutorNames}
           ${tutor ? `<a href="mailto:${tutor.email}?subject=feedback">email me</a>` : ""}</p>
         </div>
       `;
@@ -56,7 +85,13 @@ async function loadCourses() {
   }
 }
 
-// Initialize when DOM is loaded
+// Wait for auth state to initialize
 document.addEventListener('DOMContentLoaded', () => {
-  loadCourses();
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      loadCoursesForUser(user);
+    } else {
+      console.error("No user is signed in.");
+    }
+  });
 });

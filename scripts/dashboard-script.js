@@ -19,6 +19,7 @@ async function loadRecentActivities(user) {
       return;
     }
 
+    // Get the student number from email (assuming email is studentNumber@domain)
     const studentNumber = user.email.split('@')[0];
 
     const [messagesSnapshot, meetingsSnapshot, exercisesSnapshot] = await Promise.all([
@@ -29,10 +30,12 @@ async function loadRecentActivities(user) {
 
     const activityContainer = document.getElementById('activity-list');
     if (!activityContainer) return;
+    
     activityContainer.innerHTML = '';
 
     const notificationsArr = [];
 
+    // Process messages
     messagesSnapshot.forEach(doc => {
       const data = doc.data();
       notificationsArr.push({
@@ -43,6 +46,7 @@ async function loadRecentActivities(user) {
       });
     });
 
+    // Process meetings
     meetingsSnapshot.forEach(doc => {
       const data = doc.data();
       notificationsArr.push({
@@ -56,6 +60,7 @@ async function loadRecentActivities(user) {
       });
     });
 
+    // Process exercises
     exercisesSnapshot.forEach(doc => {
       const data = doc.data();
       notificationsArr.push({
@@ -67,8 +72,10 @@ async function loadRecentActivities(user) {
       });
     });
 
+    // Sort by timestamp (newest first)
     notificationsArr.sort((a, b) => b.timestamp - a.timestamp);
 
+    // Display activities (limited to 10 most recent)
     notificationsArr.slice(0, 10).forEach(item => {
       const activityItem = document.createElement('div');
       let notificationIcon = "";
@@ -107,14 +114,20 @@ async function loadRecentActivities(user) {
   }
 }
 
+// Logout function
 function setupLogout() {
   const logoutBtn = document.getElementById('logout-btn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
       try {
+        // Clear any cached data
+        window.localStorage.clear();
+        window.sessionStorage.clear();
+        
+        // Sign out from Firebase
         await auth.signOut();
-        localStorage.clear();
-        sessionStorage.clear();
+        
+        // Redirect to login page with a cache-busting parameter
         window.location.replace(`index.html?logout=${Date.now()}`);
       } catch (error) {
         console.error("Logout failed:", error);
@@ -124,25 +137,17 @@ function setupLogout() {
   }
 }
 
-// Main init block
+// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+  // Set up auth state listener
   auth.onAuthStateChanged((user) => {
     if (user) {
+      // User is signed in
       loadRecentActivities(user);
       setupLogout();
     } else {
+      // No user is signed in - redirect to login
       window.location.replace('index.html');
     }
   });
-
-  // Prevent browser from restoring cached page after logout
-  window.onpageshow = function (event) {
-    if (event.persisted || (window.performance && performance.navigation.type === 2)) {
-      auth.onAuthStateChanged((user) => {
-        if (!user) {
-          window.location.replace('index.html');
-        }
-      });
-    }
-  };
 });

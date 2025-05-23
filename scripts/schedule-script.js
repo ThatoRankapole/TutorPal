@@ -22,13 +22,19 @@ let eventData = [];
 // Calendar functions
 async function fetchEventsFromDatabase() {
   try {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.email) {
+      console.error("User not logged in.");
+      return;
+    }
+
     const q = query(eventsRef);
     const querySnapshot = await getDocs(q);
 
     eventData.length = 0; // Clear existing events
     querySnapshot.forEach((doc) => {
       const event = doc.data();
-      if (event["event-date"]) {
+      if (event["event-date"] && event["userid"] === user.email) {
         eventData.push({
           id: doc.id,
           date: event["event-date"],
@@ -67,14 +73,11 @@ function showEventsForDate(dateString) {
 
   document.body.appendChild(tooltip);
 
-  // Add event listeners for edit and delete buttons
   tooltip.querySelectorAll('.edit-event-btn').forEach(button => {
     button.addEventListener('click', function() {
       const eventId = this.getAttribute('data-id');
       const event = eventData.find(e => e.id === eventId);
-      if (event) {
-        editEvent(event);
-      }
+      if (event) editEvent(event);
     });
   });
 
@@ -98,7 +101,6 @@ async function editEvent(event) {
   document.querySelector('.event-popup').style.display = 'none';
   document.getElementById("event-manipulation-heading").textContent = "Edit Event";
 
-  // Change the save button to update mode
   const saveBtn = document.getElementById("save-event-btn");
   saveBtn.textContent = "Update Event";
   saveBtn.onclick = async function() {
@@ -147,7 +149,6 @@ async function generateCalendar(month, year) {
   calendarBody.innerHTML = "";
   document.getElementById("month-year").textContent = `${monthNames[month]} ${year}`;
 
-  // Fetch events from database
   await fetchEventsFromDatabase();
 
   let date = 1;
@@ -190,35 +191,32 @@ async function saveNewEvent() {
   const name = document.getElementById("event-name").value.trim();
   const date = document.getElementById("event-date").value;
   const description = document.getElementById("event-description").value.trim();
+  const user = JSON.parse(localStorage.getItem("user"));
 
-  if (name && date) {
+  if (name && date && user?.email) {
     try {
-      // Save to Firestore
       await addDoc(collection(db, "Events"), {
         "event-name": name,
         "event-date": date,
         "event-description": description,
+        "userid": user.email,
         "created-at": serverTimestamp()
       });
 
       document.getElementById("event-modal").style.display = "none";
-      // Refresh calendar to show new event
       await generateCalendar(currentMonth, currentYear);
     } catch (error) {
       console.error("Error saving event:", error);
       alert("Error saving event to database");
     }
   } else {
-    alert("Please fill in the name and date.");
+    alert("Please fill in the name, date, and make sure you're logged in.");
   }
 }
 
-// Initialize calendar
 async function initializeCalendar() {
-  // Initialize calendar with database events
   await generateCalendar(currentMonth, currentYear);
 
-  // Modal controls
   const modal = document.getElementById("event-modal");
   const openBtn = document.getElementById("add-event-btn");
   const closeBtn = document.getElementById("close-modal");
@@ -226,7 +224,6 @@ async function initializeCalendar() {
   document.getElementById("event-manipulation-heading").textContent = "Add New Event";
 
   openBtn.onclick = () => {
-    // Reset form when opening for new event
     document.getElementById("event-name").value = "";
     document.getElementById("event-date").value = "";
     document.getElementById("event-description").value = "";
@@ -239,7 +236,7 @@ async function initializeCalendar() {
   window.onclick = e => { if (e.target === modal) modal.style.display = "none"; }
 }
 
-// Make functions available globally
+// Change month navigation
 window.changeMonth = function(offset) {
   currentMonth += offset;
   if (currentMonth > 11) {
@@ -252,7 +249,7 @@ window.changeMonth = function(offset) {
   generateCalendar(currentMonth, currentYear);
 };
 
-// Initialize when DOM is loaded
+// Start the calendar
 document.addEventListener('DOMContentLoaded', () => {
   initializeCalendar();
 });

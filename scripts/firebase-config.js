@@ -20,13 +20,14 @@ import {
   setDoc
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// Auth (correct place for signInWithEmailAndPassword)
+// Auth
 import {
   getAuth,
   sendPasswordResetEmail,
   EmailAuthProvider,
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  onAuthStateChanged // ✅ Needed for auth listener
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 // Storage
@@ -56,7 +57,7 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// Collection references (use exact collection names you have)
+// Collection references
 const moduleRef = collection(db, "Modules");
 const meetingsRef = collection(db, "meetings");
 const messagesRef = collection(db, "Messages");
@@ -68,6 +69,8 @@ const adminRef = collection(db, "Admin");
 
 export {
   db,
+  auth,
+  onAuthStateChanged,
   moduleRef,
   meetingsRef,
   messagesRef,
@@ -77,7 +80,6 @@ export {
   studentRef,
   adminRef,
   getDocs,
-  auth,
   query,
   where,
   getCountFromServer,
