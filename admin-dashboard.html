@@ -112,7 +112,7 @@
                             <table id="students-table">
                                 <thead>
                                     <tr>
-                                        <th>Student ID</th>
+                                        <th>Student Number</th>
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Program</th>
@@ -225,7 +225,7 @@
     </div>
 
     <!-- Student Modal -->
-   
+
     <!--add or edits tudent-->
     <div class="modal" id="student-modal">
         <div class="modal-content">
@@ -264,11 +264,25 @@
                     <input type="text" id="course-code" required>
                 </div>
 
+                <button type="submit" class="btn">Continue</button>
+            </form>
+        </div>
+    </div>
+    <!--Module Selection Modal -->
+    <div class="modal" id="module-selection-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Select Modules</h3>
+
+            <form id="module-selection-form">
+                <div id="module-checkboxes">
+                    <!-- Dynamically injected module checkboxes will go here -->
+                </div>
+
                 <button type="submit" class="btn">Save</button>
             </form>
         </div>
     </div>
-
 
     <!-- Tutor Modal -->
     <!--add or edit tutor-->
@@ -291,10 +305,6 @@
                     <input type="email" id="tutor-email" required>
                 </div>
                 <div class="form-group">
-                    <label for="tutor-specialization">Specialization</label>
-                    <input type="text" id="tutor-specialization" required>
-                </div>
-                <div class="form-group">
                     <label for="staff-number">Staff Number</label>
                     <input type="text" id="staff-number" required>
                 </div>
@@ -302,6 +312,7 @@
             </form>
         </div>
     </div>
+    
 
     <!-- Module Modal -->
     <div class="modal" id="module-modal">

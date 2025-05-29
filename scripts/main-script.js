@@ -1,7 +1,7 @@
-import { 
+import {
   db,
   moduleRef,
-  meetingsRef,
+  sessionsRef,
   messagesRef,
   getCountFromServer,
   query,
@@ -24,7 +24,7 @@ export function formatTimestamp(timestamp) {
 }
 
 // Make showTab available globally by attaching to window
-window.showTab = function(tabId) {
+window.showTab = function (tabId) {
   document.querySelectorAll('.tab-content').forEach(tab => {
     tab.classList.remove('active');
   });
@@ -80,16 +80,35 @@ async function initializeCounters() {
     // Get student-specific active courses count
     const coursesCount = await getStudentActiveCoursesCount(user);
 
-    // Get meetings and unread messages count as before
-    const [meetingsCount, unreadCount] = await Promise.all([
-      getCountFromServer(meetingsRef),
-      getCountFromServer(query(messagesRef, where("read", "==", false)))
-    ]);
+    // Get today's date string yyyy-mm-dd
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${yyyy}-${mm}-${dd}`;
 
-    // Update the UI
-    document.getElementById('number-of-courses').textContent = `${coursesCount}`;
-    document.getElementById('number-of-meetings').textContent = meetingsCount.data().count;
+    // Start fetching unread messages count
+    const unreadCountPromise = getCountFromServer(query(messagesRef, where("read", "==", false)));
+
+    // Fetch all sessions and count upcoming
+    const sessionsSnapshot = await getDocs(sessionsRef);
+
+    let upcomingSessionsCount = 0;
+    sessionsSnapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.date && data.date >= todayStr) {
+        upcomingSessionsCount++;
+      }
+    });
+
+    // Wait for unread messages count result
+    const unreadCount = await unreadCountPromise;
+
+    // Update your UI
+    document.getElementById('number-of-courses').textContent = `${coursesCount}`;  // assuming defined
+    document.getElementById('number-of-meetings').textContent = upcomingSessionsCount;
     document.getElementById('unread-messages').textContent = unreadCount.data().count;
+
 
   } catch (error) {
     console.error("Error initializing counters:", error);

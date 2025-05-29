@@ -45,13 +45,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
             querySnapshot.forEach((docSnap) => {
                 const tutor = docSnap.data();
+
+                // Split modules by colon and join with <br> to display line by line
+                const modulesList = (tutor.modules || '')
+                    .split(':')
+                    .map(mod => mod.trim())
+                    .filter(Boolean)
+                    .join('<br>');
+
                 const row = document.createElement('tr');
 
                 row.innerHTML = `
                     <td>${tutor['staff-number'] || 'N/A'}</td>
                     <td>${tutor.firstname || ''} ${tutor.lastname || ''}</td>
-                    <td>${tutor['email'] || 'N/A'}</td>
-                    <td>${tutor['specialization'] || ''}</td>
+                    <td>${tutor.email || 'N/A'}</td>
+                    <td>${modulesList}</td>
                     <td class="action-buttons">
                         <button class="edit-btn" data-id="${docSnap.id}"><i class="fas fa-edit"></i> Edit</button>
                         <button class="delete-btn" onclick="deleteTutor('${docSnap.id}', '${tutor.firstname} ${tutor.lastname}', this)"><i class="fas fa-trash"></i> Delete</button>
@@ -81,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById("tutor-firstname").value = tutor.firstname || '';
                 document.getElementById("tutor-lastname").value = tutor.lastname || '';
                 document.getElementById("tutor-email").value = tutor.email || '';
-                document.getElementById("tutor-specialization").value = tutor.specialization || '';
+                // Removed specialization field population since it's not in form anymore
 
                 document.getElementById("tutor-modal-title").textContent = "Edit Tutor";
                 document.getElementById("tutor-modal").style.display = "flex";
@@ -97,9 +105,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const firstname = document.getElementById('tutor-firstname').value.trim();
         const lastname = document.getElementById('tutor-lastname').value.trim();
         const email = document.getElementById('tutor-email').value.trim();
-        const specialization = document.getElementById('tutor-specialization').value.trim();
 
-        if (!staffNumber || !firstname || !lastname || !email || !specialization) {
+        if (!staffNumber || !firstname || !lastname || !email) {
             alert('Please fill in all required fields.');
             return;
         }
@@ -108,8 +115,8 @@ document.addEventListener('DOMContentLoaded', function () {
             'staff-number': staffNumber,
             firstname,
             lastname,
-            email,
-            specialization
+            email
+            // Removed specialization from save/update
         };
 
         try {

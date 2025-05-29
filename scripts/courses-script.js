@@ -9,7 +9,8 @@ import {
   collection,
   query,
   where,
-  onAuthStateChanged
+  onAuthStateChanged,
+  updateDoc
 } from './firebase-config.js';
 
 // Fetch and display courses for the logged-in student
@@ -46,13 +47,45 @@ async function loadCoursesForUser(user) {
 
     const tutors = tutorSnapshot.docs.map(doc => doc.data());
 
-    moduleSnapshot.forEach((doc) => {
-      const data = doc.data();
-      const moduleCode = doc.id;
+    moduleSnapshot.forEach(async (modDoc) => {
+      const data = modDoc.data();
+      const moduleCode = modDoc.id;
 
       if (!enrolledModules.includes(moduleCode)) return;
 
-      const consultationNeed = data["consultation-needed"] ? "Yes" : "No";
+      // Predicate Calculation Logic
+      const completedWork = data["completed-work-weight"] || 0;
+      const currentPredicate = data["current-predicate"] || 0;
+
+      let overallMark = (currentPredicate / completedWork) * 100;
+
+      let consultationNeeded = false;
+      let performance = "";
+
+      if (overallMark < 50) {
+        consultationNeeded = true;
+        performance = "bad";
+      } else if (overallMark >= 50 && overallMark < 75) {
+        consultationNeeded = false;
+        performance = "good";
+      } else if (overallMark >= 75 && overallMark <= 100) {
+        consultationNeeded = false;
+        performance = "excellent";
+      }
+
+      // Persist updated fields to Firestore including current-predicate
+      await updateDoc(doc(moduleRef, moduleCode), {
+        "consultation-needed": consultationNeeded,
+        "performance": performance,
+        "current-predicate": currentPredicate
+      });
+
+      // Update local data for rendering
+      data["consultation-needed"] = consultationNeeded;
+      data.performance = performance;
+      data["current-predicate"] = currentPredicate;
+
+      const consultationNeedText = consultationNeeded ? "Yes" : "No";
       const tutor = tutors.find(t => t["module-code"] === moduleCode);
       const tutorNames = tutor ? `${tutor["name"]} ${tutor["surname"]}` : "Unassigned";
 
@@ -67,9 +100,10 @@ async function loadCoursesForUser(user) {
         <div class="course-modules">
           <h4>Details:</h4>
           <ul>
-            <li>Performance: ${data.performance}</li>
-            <li>Current-Predicate: ${data["current-predicate"]}</li>
-            <li>Consultation Needed: ${consultationNeed}</li>
+            <li>Performance: ${performance}</li>
+            <li>Current-Predicate: ${currentPredicate}%</li>
+            <li>Completed Work: ${completedWork}%</li>
+            <li>Consultation Needed: ${consultationNeedText}</li>
           </ul>
         </div>
         <div class="course-tutor">

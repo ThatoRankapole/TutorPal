@@ -27,7 +27,7 @@ import {
   EmailAuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  onAuthStateChanged // ✅ Needed for auth listener
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 // Storage
@@ -64,6 +64,7 @@ const messagesRef = collection(db, "Messages");
 const exercisesRef = collection(db, "Exercises");
 const tutorsRef = collection(db, "Tutor");
 const eventsRef = collection(db, "Events");
+const sessionsRef = collection(db, "sessions");  // <-- Added sessionsRef
 const studentRef = collection(db, "Student");
 const adminRef = collection(db, "Admin");
 
@@ -77,6 +78,7 @@ export {
   exercisesRef,
   tutorsRef,
   eventsRef,
+  sessionsRef,
   studentRef,
   adminRef,
   getDocs,

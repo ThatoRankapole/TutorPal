@@ -173,6 +173,7 @@ function setupProfilePictureHandlers() {
         
         const url = await uploadProfilePicture(file);
         document.getElementById('profile-picture').src = url;
+        document.getElementById('profile-pic').src = url;
         alert('Profile picture updated successfully!');
       } catch (error) {
         alert(error.message);

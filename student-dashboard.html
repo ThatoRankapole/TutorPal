@@ -53,7 +53,7 @@
                 <a href="index.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
         </aside>
-
+s
         <!-- Main Content Area -->
         <main class="main-content">
             <header class="top-bar">
@@ -62,10 +62,11 @@
                     <button onclick="handleSearch()"><i class="fas fa-search"></i></button>
                 </div>
                 <div class="user-profile">
-                    <span>Welcome, <strong>Student Name</strong></span>
-                    <img width="29" height="29" src="https://img.icons8.com/material-rounded/24/user-male-circle.png"
-                        alt="user-male-circle" />
+                    <span>Welcome, <strong id="student-names">Student Name</strong></span>
+                    <img id="profile-pic" width="29" height="29"
+                        src="https://img.icons8.com/material-rounded/24/user-male-circle.png" alt="Profile Picture" />
                 </div>
+
             </header>
 
             <!-- Dashboard Content -->
@@ -176,53 +177,45 @@
                         <div class="PredicateCalculator">
                             <form class="CalculatorForm">
                                 <div class="subjectInputs">
-                                    <label id="subjNameHeader">Subject Name/Code</label><br>
-                                    <input type="text" id="subjectName" placeholder="eg:Life skills/LFS125X"
-                                        required><br>
-                                    <p id="instruction">Enter number of assessments then click next.<br>
-                                        Enter assessment percentage on the left<br>
-                                        Enter assessment weight on the right<br>
-                                        Enter even unwritten assessment weights with 0 as the mark<br>
-                                    </p>
+                                    <label for="moduleSelect">Select Module</label><br>
+                                    <select id="moduleSelect" required>
+                                        <!-- options to be populated by JS -->
+                                    </select><br>
                                 </div>
 
                                 <div class="testInputs" id="quizzes">
-                                    <label>Number of Quizzes</label>
-                                    <input class="markInputs" type="number" id="numQuizzes" min="0" max="50">
-                                    <button class="nextButton" type="button" id="revealQuizzesInput"
-                                        onclick="numberOfTests()">next</button>
+                                    <label>Written Quizzes</label>
+                                    <span id="numQuizzes">0</span>
                                 </div>
                                 <span id="selectedQuizzes"></span>
 
                                 <div class="testInputs" id="classTests">
-                                    <label>Number of Class tests</label>
-                                    <input class="markInputs" type="number" id="numClassTests" min="0" max="50">
-                                    <button class="nextButton" type="button" id="revealClassTestInput"
-                                        onclick="numberOfTests()">next</button>
+                                    <label>Written Class Tests</label>
+                                    <span id="numClassTests">0</span>
                                 </div>
                                 <span id="selectedClassTests"></span>
 
                                 <div class="testInputs" id="assignments">
-                                    <label>Number of assignments</label>
-                                    <input class="markInputs" type="number" id="numAssignments" min="0" max="50">
-                                    <button class="nextButton" type="button" id="revealAssignmentInput"
-                                        onclick="numberOfTests()">next</button>
+                                    <label>Written Assignments</label>
+                                    <span id="numAssignments">0</span>
                                 </div>
                                 <span id="selectedAssignments"></span>
 
+                                <div class="testInputs" id="completedProjects">
+                                    <label>Completed Projects</label>
+                                    <span id="numProjects">0</span>
+                                </div>
+                                <span id="selectedProjects"></span>
+
                                 <div class="testInputs" id="semesterTests">
-                                    <label>Number of semester tests</label>
-                                    <input class="markInputs" type="number" id="numSemTests" min="0" max="50">
-                                    <button class="nextButton" type="button" id="revealSemTestsInput"
-                                        onclick="numberOfTests()">next</button>
+                                    <label>Written Tests</label>
+                                    <span id="numSemTests">0</span>
                                 </div>
                                 <span id="selectedSemTests"></span>
 
                                 <div class="homeButtons">
-                                    <button class="homeButton" type="button" id="calculate"
-                                        onclick="calculateButton()">calculate</button>
-                                    <button class="homeButton" type="button" id="view"
-                                        onclick="viewResultsButton()">view results</button>
+                                    <button class="homeButton" type="button" id="calculate">calculate</button>
+                                    <button class="homeButton" type="button" id="view">view results</button>
                                 </div>
                             </form>
                         </div>
@@ -231,18 +224,13 @@
                             <h1>Predicate Mark(s)</h1>
                             <span id="resultsDisplay"></span>
                             <div class="resultButtons">
-                                <button class="homeButton" type="button" onclick="reset()">reset</button>
-                                <button class="homeButton" type="button" onclick="back()">back</button>
+                                <button class="homeButton" type="button">reset</button>
+                                <button class="homeButton" type="button">back</button>
                             </div>
-                        </div>
-
-                        <div id="popup" class="popup-box">
-                            <p id="instructionText">Welcome to the Predicate Calculator!</p>
-                            <button onclick="nextInstruction()">Next</button>
-                            <button onclick="skipInstructions()">Skip</button>
                         </div>
                     </section>
                 </div>
+
                 <!-- Settings Tab -->
                 <div class="tab-content" id="settings-tab">
                     <section class="settings-section">

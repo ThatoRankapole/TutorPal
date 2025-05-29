@@ -25,62 +25,12 @@
     overflow: hidden;
 }
 
-.conversation-list {
-    width: 300px;
-    border-right: 1px solid #ecf0f1;
-    overflow-y: auto;
-}
-
-.conversation {
-    padding: 15px;
-    border-bottom: 1px solid #ecf0f1;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.conversation:hover {
-    background-color: #f8f9fa;
-}
-
-.conversation.active {
-    background-color: #e3f2fd;
-}
-
-.conversation-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 5px;
-}
-
-.conversation-header h4 {
-    margin: 0;
-    color: #2c3e50;
-}
-
-.conversation-header .time {
-    font-size: 0.8rem;
-    color: #7f8c8d;
-}
-
-.conversation .preview {
-    margin: 0;
-    font-size: 0.9rem;
-    color: #7f8c8d;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.no-conversations {
-    padding: 20px;
-    text-align: center;
-    color: #7f8c8d;
-}
-
 .message-view {
     flex: 1;
     display: flex;
     flex-direction: column;
+    padding: 20px;
+    overflow-y: auto;
 }
 
 .message-header {
@@ -160,71 +110,130 @@
     color: #3498db;
     font-size: 1.2rem;
 }
-/* Add these to your existing messages-style.css */
 
-.conversation-avatar {
-  width: 40px;
-  height: 40px;
-  background-color: #e3f2fd;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 10px;
-  color: #3498db;
+.conversation-list {
+    width: 300px;
+    border-right: 1px solid #ecf0f1;
+    overflow-y: auto;
+    height: 100%;
 }
 
-.conversation-avatar .unread {
-  color: #e74c3c;
-  position: relative;
+.conversation {
+    padding: 15px;
+    border-bottom: 1px solid #ecf0f1;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    flex-direction: column;
 }
 
-.conversation-avatar .unread::after {
-  content: '';
-  position: absolute;
-  top: -3px;
-  right: -3px;
-  width: 8px;
-  height: 8px;
-  background-color: #e74c3c;
-  border-radius: 50%;
+.conversation:hover {
+    background-color: #f8f9fa;
+}
+
+.conversation.active {
+    background-color: #e3f2fd;
+}
+
+.conversation-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    align-items: center;
+}
+
+.conversation-header h4 {
+    margin: 0;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1rem;
+    flex: 1;
+}
+
+.conversation-header .time,
+.datetime {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    white-space: nowrap;
+    margin-left: 10px;
+}
+
+.conversation .preview {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Unread message styling */
+.conversation.unread .preview {
+    color: #e74c3c;
+    font-weight: 600;
+    position: relative;
+    padding-right: 15px;
+}
+
+.conversation.unread .preview::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background-color: #e74c3c;
+    border-radius: 50%;
+}
+
+/* Optional subtle background for unread */
+.conversation.unread {
+    background-color: #fff5f5;
+}
+
+.no-conversations {
+    padding: 20px;
+    text-align: center;
+    color: #7f8c8d;
 }
 
 .conversation-details {
-  flex: 1;
+    flex: 1;
 }
 
 .module-tag {
-  background-color: #e3f2fd;
-  color: #3498db;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  margin-left: 5px;
+    background-color: #e3f2fd;
+    color: #3498db;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    margin-left: 5px;
 }
 
-.empty-state, .no-messages {
-  padding: 20px;
-  text-align: center;
-  color: #7f8c8d;
+.empty-state,
+.no-messages {
+    padding: 20px;
+    text-align: center;
+    color: #7f8c8d;
 }
 
 .error-message {
-  color: #e74c3c;
-  padding: 20px;
-  text-align: center;
+    color: #e74c3c;
+    padding: 20px;
+    text-align: center;
 }
 
 .btn-reply {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-top: 15px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 15px;
 }
 
 .btn-reply:hover {
-  background-color: #2980b9;
+    background-color: #2980b9;
 }

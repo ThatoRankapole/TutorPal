@@ -26,7 +26,6 @@ async function verifyUser() {
 }
 
 async function loadAdminProfile() {
-  try {
     const user = await verifyUser();
     const emailQuery = query(adminRef, where("admin-email", "==", user.email));
     const emailSnapshot = await getDocs(emailQuery);
@@ -43,13 +42,9 @@ async function loadAdminProfile() {
     document.getElementById("admin-email").textContent = adminData["admin-email"] || user.email || "";
 
     const profilePicture = document.getElementById('profile-picture');
-    profilePicture.src = adminData.profilePictureUrl || DEFAULT_PROFILE_PIC;
-
-  } catch (error) {
-    console.error("Profile load error:", error);
-    alert(error.message);
+    profilePicture.src = adminData.profilePictureUrl || DEFAULT_PROFILE_PIC;ert(error.message);
   }
-}
+
 
 async function uploadProfilePicture(file) {
   const user = await verifyUser();

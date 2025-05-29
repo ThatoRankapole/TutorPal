@@ -6,7 +6,7 @@ import {
     updateDoc,
     deleteDoc,
     getDocs,
-    getDoc,
+    getDoc
 } from "./firebase-config.js";
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             const tutorsSnapshot = await getDocs(collection(db, "Tutor"));
-
             tutorsSnapshot.forEach((docSnap) => {
                 const tutor = docSnap.data();
                 const fullName = `${tutor.firstname} ${tutor.lastname}`;
@@ -33,22 +32,19 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Open Module Modal for adding new module
     document.getElementById('add-module-btn').addEventListener('click', function () {
         document.getElementById('module-form').reset();
         document.getElementById('module-id').value = '';
         document.getElementById('module-modal-title').textContent = 'Add New Module';
-        populateTutorSelect(); 
+        populateTutorSelect();
         document.getElementById('module-modal').style.display = 'flex';
     });
 
-    // Close Module Modal
     document.querySelector('#module-modal .close-modal').addEventListener('click', function () {
         document.getElementById('module-modal').style.display = 'none';
         document.getElementById('module-form').reset();
     });
 
-    // Refresh Modules list
     document.getElementById('refresh-modules-btn').addEventListener('click', async function () {
         const modulesTable = document.getElementById('modules-table');
         const tableBody = modulesTable.querySelector('tbody');
@@ -79,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <button class="edit-module-btn" data-id="${docSnap.id}">
                             <i class="fas fa-edit"></i> Edit
                         </button>
-                        <button class="delete-module-btn" onclick="deleteModule('${docSnap.id}', '${module['module-name']}', this)">
+                        <button class="delete-module-btn" onclick="deleteModule('${docSnap.id}', '${module['module-code']}', '${module['module-name']}', '${module['module-tutor']}', this)">
                             <i class="fas fa-trash"></i> Delete
                         </button>
                     </td>
@@ -92,7 +88,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Handle Edit button click
     document.addEventListener('click', async (e) => {
         if (e.target.closest('.edit-module-btn')) {
             const button = e.target.closest('.edit-module-btn');
@@ -109,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.getElementById('module-name').value = module['module-name'] || '';
                     document.getElementById('module-credits').value = module['module-credits'] || '';
 
-                    await populateTutorSelect(); // wait for tutors to load
+                    await populateTutorSelect();
                     document.getElementById('module-tutor').value = module['module-tutor'] || '';
 
                     document.getElementById('module-modal-title').textContent = 'Edit Module';
@@ -122,7 +117,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Handle form submission (add/edit)
     document.getElementById('module-form').addEventListener('submit', async function (e) {
         e.preventDefault();
 
@@ -154,6 +148,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert(`Module ${moduleName} updated successfully.`);
             } else {
                 await setDoc(doc(db, 'Modules', moduleCode), moduleData);
+
+                // Add module code to tutor string
+                const tutorsSnapshot = await getDocs(collection(db, "Tutor"));
+                tutorsSnapshot.forEach(async (docSnap) => {
+                    const tutor = docSnap.data();
+                    const fullName = `${tutor.firstname} ${tutor.lastname}`;
+
+                    if (fullName === moduleTutor) {
+                        const currentModules = tutor.modules || "";
+                        const modulesArray = currentModules.split(':').filter(m => m);
+                        if (!modulesArray.includes(moduleCode)) {
+                            modulesArray.push(moduleCode);
+                        }
+                        const updatedModulesString = modulesArray.join(':');
+                        await updateDoc(doc(db, "Tutor", docSnap.id), { modules: updatedModulesString });
+                    }
+                });
+
                 alert(`Module ${moduleName} added successfully.`);
             }
 
@@ -165,16 +177,30 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Delete module function globally accessible
-    window.deleteModule = async function (moduleId, moduleName, btnElement) {
+    window.deleteModule = async function (moduleId, moduleCode, moduleName, moduleTutor, btnElement) {
         const confirmDelete = confirm(`Are you sure you want to delete the module "${moduleName}"?`);
         if (!confirmDelete) return;
 
         try {
-            const moduleRef = doc(db, 'Modules', moduleId);
-            await deleteDoc(moduleRef);
+            await deleteDoc(doc(db, 'Modules', moduleId));
 
-            if (btnElement && btnElement.closest) {
+            const tutorsSnapshot = await getDocs(collection(db, "Tutor"));
+            tutorsSnapshot.forEach(async (docSnap) => {
+                const tutor = docSnap.data();
+                const fullName = `${tutor.firstname} ${tutor.lastname}`;
+
+                if (fullName === moduleTutor) {
+                    const modulesStr = tutor.modules || "";
+                    let modulesArray = modulesStr.split(':').filter(m => m !== moduleCode);
+                    const updatedModules = modulesArray.join(':');
+
+                    await updateDoc(doc(db, "Tutor", docSnap.id), {
+                        modules: updatedModules
+                    });
+                }
+            });
+
+            if (btnElement?.closest) {
                 const row = btnElement.closest('tr');
                 if (row) row.remove();
             }
@@ -192,7 +218,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    // Optionally, trigger initial refresh on page load
     if (document.getElementById('refresh-modules-btn')) {
         document.getElementById('refresh-modules-btn').click();
     }

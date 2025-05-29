@@ -1,305 +1,208 @@
-import {
-  db,
-  moduleRef,
-  query,
-  getDocs,
-  where,
-  updateDoc,
-  doc
-} from './firebase-config.js';
+import { moduleRef, getDocs, updateDoc, doc as docRef } from './firebase-config.js';
 
-// Global variables
-let subjects = [];
+const moduleSelect = document.getElementById('moduleSelect');
 
-// Add styles for calculator inputs
-const inputStyles = `
-  .AddedTestInputs {
-    display: flex;
-    align-items: center;
-    margin-top: 6px;
-    text-align: right;
-  }
-  .AddedTestInputs label {
-    padding-right: 39px;
-    flex: 1;
-  }
-  .AddedTestInputs input {
-    margin-left: 5px;
-    width: 60px;
-    padding: 5px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-`;
+// Updated IDs based on your HTML
+const selectedQuizzes = document.getElementById('selectedQuizzes');
+const selectedAssignments = document.getElementById('selectedAssignments');
+const selectedProjects = document.getElementById('selectedProjects');
+const selectedClassTests = document.getElementById('selectedClassTests');
+const selectedSemesterTests = document.getElementById('selectedSemTests');
 
-// Add the styles to the head
-const styleSheet = document.createElement("style");
-styleSheet.type = "text/css";
-styleSheet.innerText = inputStyles;
-document.head.appendChild(styleSheet);
+// Counters
+const numQuizzes = document.getElementById('numQuizzes');
+const numAssignments = document.getElementById('numAssignments');
+const numProjects = document.getElementById('numProjects');
+const numClassTests = document.getElementById('numClassTests');
+const numSemTests = document.getElementById('numSemTests');
 
-// Initialize calculator and load predicates from database
-async function initializeCalculator() {
-  const resultsDiv = document.getElementById('results');
-  if (resultsDiv) {
-    resultsDiv.style.display = 'none';
-  }
-  await loadPredicatesFromDatabase();
+// Results display elements
+const resultsDiv = document.getElementById('results');
+const resultsDisplay = document.getElementById('resultsDisplay');
+
+// Calculate button (note the ID changed from 'calculateBtn' to 'calculate')
+const calculateBtn = document.getElementById('calculate');
+
+function clearAllTestInputs() {
+  if (selectedQuizzes) selectedQuizzes.innerHTML = '';
+  if (selectedAssignments) selectedAssignments.innerHTML = '';
+  if (selectedProjects) selectedProjects.innerHTML = '';
+  if (selectedClassTests) selectedClassTests.innerHTML = '';
+  if (selectedSemesterTests) selectedSemesterTests.innerHTML = '';
+
+  if (numQuizzes) numQuizzes.textContent = '0';
+  if (numAssignments) numAssignments.textContent = '0';
+  if (numProjects) numProjects.textContent = '0';
+  if (numClassTests) numClassTests.textContent = '0';
+  if (numSemTests) numSemTests.textContent = '0';
+
+  if (resultsDiv) resultsDiv.style.display = 'none';
+  if (resultsDisplay) resultsDisplay.textContent = '';
 }
 
-// Load existing predicates from database
-async function loadPredicatesFromDatabase() {
+function createTestInputRow(type, i, weightText = '', weightValue = 0) {
+  return `
+    <div class="AddedTestInputs">
+      <label>${type} ${i + 1}</label>
+      <input class="markInputs" type="number" data-weight="${weightValue}" size="1" min="0" max="100">
+      ${weightText ? `<span class="weightDisplay">Weight: ${weightText}%</span>` : ''}
+    </div>`;
+}
+
+function parseWeights(weightString) {
+  if (!weightString) return [];
+  return weightString.split(':').map(w => parseFloat(w.trim()));
+}
+
+async function populateModules() {
   try {
     const querySnapshot = await getDocs(moduleRef);
-    subjects = querySnapshot.docs.map(doc => {
+    moduleSelect.innerHTML = '<option value="" disabled selected>Select a module</option>';
+
+    querySnapshot.forEach((doc) => {
       const data = doc.data();
-      return {
-        name: data["module-code"] || data["module-name"] || "Unknown",
-        predicate: data["current-predicate"] || 0
-      };
+      const moduleName = data['module-name'] || doc.id;
+      const option = document.createElement('option');
+      option.value = doc.id;
+      option.textContent = moduleName;
+      moduleSelect.appendChild(option);
     });
   } catch (error) {
-    console.error("Error loading predicates:", error);
+    console.error('Error fetching modules:', error);
   }
 }
 
-// Dynamic input generation based on number of tests
-function numberOfTests() {
-  const activeElementId = document.activeElement.id;
+moduleSelect.addEventListener('change', async (e) => {
+  const selectedModuleId = e.target.value;
+  clearAllTestInputs();
 
-  if (activeElementId === 'revealQuizzesInput') {
-    const numTests = parseInt(document.getElementById('numQuizzes').value) || 0;
-    const selectedQuizzes = document.getElementById('selectedQuizzes');
-    if (selectedQuizzes) {
-      selectedQuizzes.innerHTML = '';
-
-      for (let i = 1; i <= numTests; i++) {
-        selectedQuizzes.innerHTML += `
-          <div class="AddedTestInputs">
-            <label>Quiz ${i}</label>
-            <input class="markInputs" type="number" id="quiz${i}" min="0" max="100" placeholder="Mark %">
-            <input class="markInputs" type="number" id="quizWeight${i}" min="0" max="100" placeholder="Weight %">
-          </div>`;
-      }
-    }
-  }
-  else if (activeElementId === 'revealClassTestInput') {
-    const numTests = parseInt(document.getElementById('numClassTests').value) || 0;
-    const selectedClassTests = document.getElementById('selectedClassTests');
-    if (selectedClassTests) {
-      selectedClassTests.innerHTML = '';
-
-      for (let i = 1; i <= numTests; i++) {
-        selectedClassTests.innerHTML += `
-          <div class="AddedTestInputs">
-            <label>Class Test ${i}</label>
-            <input class="markInputs" type="number" id="classTest${i}" min="0" max="100" placeholder="Mark %">
-            <input class="markInputs" type="number" id="classTestWeight${i}" min="0" max="100" placeholder="Weight %">
-          </div>`;
-      }
-    }
-    const assignmentsDiv = document.getElementById('assignments');
-    if (assignmentsDiv) {
-      assignmentsDiv.style.display = 'flex';
-    }
-  }
-  else if (activeElementId === 'revealAssignmentInput') {
-    const numAssignments = parseInt(document.getElementById('numAssignments').value) || 0;
-    const selectedAssignments = document.getElementById('selectedAssignments');
-    if (selectedAssignments) {
-      selectedAssignments.innerHTML = '';
-
-      for (let i = 1; i <= numAssignments; i++) {
-        selectedAssignments.innerHTML += `
-          <div class="AddedTestInputs">
-            <label>Assignment ${i}</label>
-            <input class="markInputs" type="number" id="assignment${i}" min="0" max="100" placeholder="Mark %">
-            <input class="markInputs" type="number" id="assignmentWeight${i}" min="0" max="100" placeholder="Weight %">
-          </div>`;
-      }
-    }
-    const semesterTestsDiv = document.getElementById('semesterTests');
-    if (semesterTestsDiv) {
-      semesterTestsDiv.style.display = 'flex';
-    }
-  }
-  else if (activeElementId === 'revealSemTestsInput') {
-    const numSemTests = parseInt(document.getElementById('numSemTests').value) || 0;
-    const selectedSemTests = document.getElementById('selectedSemTests');
-    if (selectedSemTests) {
-      selectedSemTests.innerHTML = '';
-
-      for (let i = 1; i <= numSemTests; i++) {
-        selectedSemTests.innerHTML += `
-          <div class="AddedTestInputs">
-            <label>Semester Test ${i}</label>
-            <input class="markInputs" type="number" id="semTest${i}" min="0" max="100" placeholder="Mark %">
-            <input class="markInputs" type="number" id="semTestWeight${i}" min="0" max="100" placeholder="Weight %">
-          </div>`;
-      }
-    }
-  }
-}
-
-// Calculate predicate mark
-async function calculate() {
-  let predicate = 0;
-  let totalWeight = 0;
-  const subjectName = document.getElementById('subjectName')?.value.trim();
-
-  if (!subjectName) {
-    alert('Please enter a subject name/code');
-    return;
-  }
-
-  // Calculate for each assessment type
-  const calculations = [
-    { type: 'quiz', countId: 'numQuizzes' },
-    { type: 'classTest', countId: 'numClassTests' },
-    { type: 'assignment', countId: 'numAssignments' },
-    { type: 'semTest', countId: 'numSemTests' }
-  ];
-
-  for (const calc of calculations) {
-    const countInput = document.getElementById(calc.countId);
-    const count = countInput ? parseInt(countInput.value) || 0 : 0;
-
-    for (let i = 1; i <= count; i++) {
-      const markInput = document.getElementById(`${calc.type}${i}`);
-      const weightInput = document.getElementById(`${calc.type}Weight${i}`);
-
-      if (!markInput || !weightInput) continue;
-
-      const mark = parseFloat(markInput.value);
-      const weight = parseFloat(weightInput.value);
-
-      if (isNaN(mark)) {
-        alert(`Please enter mark for ${calc.type.replace(/([A-Z])/g, ' $1')} ${i}`);
-        return;
-      }
-
-      if (isNaN(weight)) {
-        alert(`Please enter weight for ${calc.type.replace(/([A-Z])/g, ' $1')} ${i}`);
-        return;
-      }
-
-      predicate += (mark * weight) / 100;
-      totalWeight += weight;
-    }
-  }
-
-  // Validate total weight
-  if (totalWeight !== 100) {
-    alert(`Total weight must be 100% (current: ${totalWeight}%)`);
-    return;
-  }
-
-  const finalPredicate = predicate.toFixed(2);
-
-  // Update or add subject
-  const existingIndex = subjects.findIndex(s => s.name === subjectName);
-  if (existingIndex !== -1) {
-    subjects[existingIndex].predicate = finalPredicate;
-  } else {
-    subjects.push({
-      name: subjectName,
-      predicate: finalPredicate
-    });
-  }
-
-  // Update database if subject code matches
-  await updatePredicateOnDatabase(subjectName, finalPredicate);
-  await loadPredicatesFromDatabase();
-  viewResultsButton();
-}
-
-async function updatePredicateOnDatabase(subjectName, finalPredicate) {
   try {
-    const q = query(moduleRef, where("module-code", "==", subjectName));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await getDocs(moduleRef);
+    const doc = querySnapshot.docs.find(d => d.id === selectedModuleId);
+    if (!doc) return;
 
-    for (const document of querySnapshot.docs) {
-      const docId = document.id;
-      const moduleDocRef = doc(db, "Modules", docId);
+    const data = doc.data();
 
-      await updateDoc(moduleDocRef, {
-        "current-predicate": parseFloat(finalPredicate)
-      });
+    const groups = [
+      { type: 'Quiz', count: Number(data.quzzes || 0), weights: parseWeights(data['quiz-weights']), element: selectedQuizzes, counter: numQuizzes },
+      { type: 'Assignment', count: Number(data.assignments || 0), weights: parseWeights(data['assignment-weights']), element: selectedAssignments, counter: numAssignments },
+      { type: 'Project', count: Number(data.projects || 0), weights: parseWeights(data['project-weights']), element: selectedProjects, counter: numProjects },
+      { type: 'Class test', count: Number(data['class-tests'] || 0), weights: parseWeights(data['class-test-weights']), element: selectedClassTests, counter: numClassTests },
+      { type: 'Semester test', count: Number(data['semester-tests'] || 0), weights: parseWeights(data['semester-test-weights']), element: selectedSemesterTests, counter: numSemTests },
+    ];
 
-      alert("Predicate updated successfully");
+    for (const group of groups) {
+      const { type, count, weights, element, counter } = group;
+      if (count > 0 && element) {
+        if (counter) counter.textContent = count;
+        for (let i = 0; i < count; i++) {
+          const weight = weights[i] || 0;
+          element.innerHTML += createTestInputRow(type, i, weight.toString(), weight);
+        }
+      }
     }
   } catch (error) {
-    console.error("Error updating predicate:", error);
-    alert("Error updating predicate");
+    console.error('Error loading module data:', error);
   }
-}
-
-// View management functions
-function viewResultsButton() {
-  const resultsDiv = document.getElementById('resultsDisplay');
-  const resultsContainer = document.querySelector('#results');
-  const calculatorContainer = document.querySelector('.PredicateCalculator');
-
-  if (resultsDiv && resultsContainer && calculatorContainer) {
-    resultsDiv.innerHTML = subjects.length === 0
-      ? '<p>No results found</p>'
-      : subjects.map(subject =>
-          `<p><strong>${subject.name}:</strong> ${subject.predicate}%</p>`
-        ).join('');
-
-    resultsContainer.style.display = 'block';
-    calculatorContainer.style.display = 'none';
-  }
-}
-
-function reset() {
-  const subjectNameInput = document.getElementById('subjectName');
-  const selectedQuizzes = document.getElementById('selectedQuizzes');
-  const selectedClassTests = document.getElementById('selectedClassTests');
-  const selectedAssignments = document.getElementById('selectedAssignments');
-  const selectedSemTests = document.getElementById('selectedSemTests');
-  const numQuizzes = document.getElementById('numQuizzes');
-  const numClassTests = document.getElementById('numClassTests');
-  const numAssignments = document.getElementById('numAssignments');
-  const numSemTests = document.getElementById('numSemTests');
-  const assignmentsDiv = document.getElementById('assignments');
-  const semesterTestsDiv = document.getElementById('semesterTests');
-  const resultsContainer = document.querySelector('#results');
-  const calculatorContainer = document.querySelector('.PredicateCalculator');
-
-  if (subjectNameInput) subjectNameInput.value = '';
-  if (selectedQuizzes) selectedQuizzes.innerHTML = '';
-  if (selectedClassTests) selectedClassTests.innerHTML = '';
-  if (selectedAssignments) selectedAssignments.innerHTML = '';
-  if (selectedSemTests) selectedSemTests.innerHTML = '';
-  if (numQuizzes) numQuizzes.value = '';
-  if (numClassTests) numClassTests.value = '';
-  if (numAssignments) numAssignments.value = '';
-  if (numSemTests) numSemTests.value = '';
-  if (assignmentsDiv) assignmentsDiv.style.display = 'none';
-  if (semesterTestsDiv) semesterTestsDiv.style.display = 'none';
-  if (resultsContainer) resultsContainer.style.display = 'none';
-  if (calculatorContainer) calculatorContainer.style.display = 'block';
-}
-
-function back() {
-  const resultsContainer = document.querySelector('#results');
-  const calculatorContainer = document.querySelector('.PredicateCalculator');
-
-  if (resultsContainer && calculatorContainer) {
-    resultsContainer.style.display = 'none';
-    calculatorContainer.style.display = 'block';
-  }
-}
-
-// Make functions available globally
-window.numberOfTests = numberOfTests;
-window.calculateButton = calculate;
-window.viewResultsButton = viewResultsButton;
-window.reset = reset;
-window.back = back;
-
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-  initializeCalculator();
 });
+
+// Calculate button handler
+calculateBtn.addEventListener('click', async () => {
+  const selectedModuleId = moduleSelect.value;
+  if (!selectedModuleId) {
+    alert('Please select a module first.');
+    return;
+  }
+
+  const allInputs = document.querySelectorAll('.markInputs');
+  let totalWeightDone = 0;
+  let weightedScore = 0;
+
+  allInputs.forEach(inp => {
+    const mark = parseFloat(inp.value);
+    const weight = parseFloat(inp.getAttribute('data-weight'));
+
+    if (!isNaN(mark) && !isNaN(weight)) {
+      totalWeightDone += weight;
+      weightedScore += (mark / 100) * weight;
+    }
+  });
+
+  const currentPredicate = weightedScore;
+  document.querySelector('.PredicateCalculator').remove();
+  // Display results
+  if (resultsDiv && resultsDisplay) {
+    resultsDiv.style.display = 'block';
+    resultsDisplay.innerHTML = `
+      <h3>Calculated Predicate for Module "${moduleSelect.selectedOptions[0].textContent}"</h3>
+      <p>Weighted Score: ${currentPredicate.toFixed(2)}%</p>
+      <p>Total Weight Completed: ${totalWeightDone}%</p>
+    `;
+  }
+
+  // Optionally update Firestore with results
+  try {
+    await updateDoc(docRef(moduleRef, selectedModuleId), {
+      'completed-work-weight': totalWeightDone,
+      'current-predicate': currentPredicate
+    });
+  } catch (err) {
+    console.error('Failed to update predicate:', err);
+  }
+});
+document.querySelector('.resultButtons .homeButton:nth-child(1)').addEventListener('click', () => {
+  document.querySelector('#results').style.display = 'none';
+  document.querySelector('.PredicateCalculator').style.display = 'block';
+
+  document.querySelector('#moduleSelect').selectedIndex = 0;
+  document.querySelector('#numQuizzes').textContent = '0';
+  document.querySelector('#numClassTests').textContent = '0';
+  document.querySelector('#numAssignments').textContent = '0';
+  document.querySelector('#numProjects').textContent = '0';
+  document.querySelector('#numSemTests').textContent = '0';
+
+  document.querySelector('#selectedQuizzes').innerHTML = '';
+  document.querySelector('#selectedClassTests').innerHTML = '';
+  document.querySelector('#selectedAssignments').innerHTML = '';
+  document.querySelector('#selectedProjects').innerHTML = '';
+  document.querySelector('#selectedSemTests').innerHTML = '';
+  document.querySelector('#resultsDisplay').innerHTML = '';
+});
+
+document.querySelector('.resultButtons .homeButton:nth-child(2)').addEventListener('click', () => {
+  document.querySelector('#results').style.display = 'none';
+  document.querySelector('.PredicateCalculator').style.display = 'block';
+});
+document.querySelector('#view').addEventListener('click', async () => {
+  document.querySelector('.PredicateCalculator').style.display = 'none';
+  document.querySelector('#results').style.display = 'block';
+
+  const resultsContainer = document.querySelector('#resultsDisplay');
+  resultsContainer.innerHTML = 'Loading...';
+
+  try {
+    const snapshot = await getDocs(moduleRef);
+
+    if (snapshot.empty) {
+      resultsContainer.innerHTML = 'No modules found.';
+      return;
+    }
+
+    let resultsHTML = '';
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const moduleName = data["module-name"] || "Unnamed Module";
+      const predicate = data["current-predicate"] || 0;
+      resultsHTML += `${moduleName}: ${predicate}%<br>`;
+    });
+    resultsContainer.innerHTML = resultsHTML;
+
+  } catch (error) {
+    console.error("Error fetching module data:", error);
+    resultsContainer.innerHTML = 'Failed to load results.';
+  }
+});
+
+
+
+populateModules();
