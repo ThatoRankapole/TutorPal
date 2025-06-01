@@ -321,12 +321,85 @@ window.changeMonth = function (offset) {
   generateCalendar(currentMonth, currentYear);
 };
 
+export async function loadSessions() {
+  const user = auth.currentUser;
+  if (!user) return alert("User not logged in");
+
+  const studentRef = collection(db, "Student");
+  const q = query(studentRef, where('student-email', '==', user.email));
+  const snapshot = await getDocs(q);
+
+  let studentData = null;
+  if (snapshot.empty) {
+    console.warn('No student data found for:', user.email);
+  } else {
+    const studentDoc = snapshot.docs[0];
+    studentData = studentDoc.data();
+  }
+
+
+  let table = document.getElementById('calendar')
+  let rows = table.rows
+  let qSessions = query(sessionsRef);
+  const sessionsSnapshot = await getDocs(qSessions);
+  sessionsSnapshot.forEach((doc) => {
+    const session = doc.data();
+    let date = new Date(session.date);
+    let day = date.getDate();
+    day = `${day}`
+    for (let i = 1; i < rows.length; i++) {
+      let cells = rows[i].cells;
+      for (let j = 0; j < cells.length; j++) {
+        let cell = cells[j];
+        let dat = cell.innerText;
+        if (day == dat) {
+          if (studentData == null) {
+            cell.classList.add("today");
+            cell.addEventListener('click', (e) => {
+              let msg = `
+  Title : ${session.title}
+  Module: ${session.moduleName}
+  Date: ${session.date}
+  Time: ${session.title}
+ `;
+              alert(msg)
+
+            })
+
+
+            let p = document.createElement("p")
+            p.innerText = session.moduleName
+            cell.appendChild(p);
+
+          } else {
+            let mods = Object.keys(studentData.modules);
+            console.log(mods + " => " + session.moduleId)
+            if (mods.includes(session.moduleId)) {
+              cell.classList.add("today");
+              let p = document.createElement("p")
+              p.innerText = session.moduleName
+              cell.appendChild(p);
+            }
+          }
+
+          break;
+        }
+      }
+    }
+
+  });
+
+}
+
+// Wait for Firebase Auth to initialize and user to be logged in before starting calendar
 document.addEventListener('DOMContentLoaded', () => {
   auth.onAuthStateChanged(user => {
     if (user) {
       initializeCalendar();
+      loadSessions()
     } else {
       console.error("User not logged in.");
+      // Optionally, show login prompt here
     }
   });
 });

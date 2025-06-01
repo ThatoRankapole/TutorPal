@@ -37,8 +37,15 @@ async function loadTutorProfile() {
 
     const tutorDoc = emailSnapshot.docs[0];
     const tutorData = tutorDoc.data();
+    
+        const elms = document.querySelectorAll("#tutor-name")
+    for (let i = 0; i < elms.length; i++) {
+      var cons = elms[i];
+      console.log(cons)
+      cons.textContent = (tutorData.firstname || "");
+    }
 
-    document.getElementById("tutor-name").textContent = (tutorData.firstname || "");
+
     document.getElementById("tutor-surname").textContent = (tutorData.lastname || "");
     document.getElementById("tutor-email").textContent = tutorData.email || user.email || "";
 

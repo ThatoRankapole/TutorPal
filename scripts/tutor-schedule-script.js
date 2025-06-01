@@ -12,6 +12,8 @@ import {
 
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
+import { scheduleEvent, loadSessions } from "./schedule-script.js";
+
 let currentTutorName = "";
 
 // 🔧 Get full tutor name using email (EXACTLY like your working modules code)
@@ -63,6 +65,7 @@ async function saveSession() {
     if (!user) return alert("User not logged in");
 
     const tutorId = user.uid;
+
     const sender = currentTutorName;
 
     const title = document.getElementById('session-title').value;
@@ -97,9 +100,41 @@ async function saveSession() {
 
     await addDoc(collection(db, "sessions"), sessionData);
 
+    let email = user.email;
+    let read = true;
+    let module = sessionData.moduleCode;
+    let now = new Date();
+    let upload_date = `${now}`
+    let message = {
+      userid: email,
+      read: read,
+      moduleName: sessionData.moduleName,
+      moduleCode: sessionData.moduleCode,
+      message: `
+      
+      Hello. You have a new session <b>${sessionData.title}</b>
+      for module <b> ${sessionData.moduleName} </b>
+      <i> ${sessionData.moduleCode} </i>
+      on the <b> ${sessionData.date} <b> <t>
+      ${sessionData.time} </t>. Keep it on your notes and 
+      don't be late!
+      `
+    }
+    message['upload-date'] = upload_date
+
+    await addDoc(collection(db, "Messages"), message);
+
     alert("Session created successfully!");
     document.getElementById('session-modal').style.display = 'none';
     await loadTutorMeetings(currentTutorName);
+
+    let day = new Date(date)
+    day = `${day.getDate()}`
+    
+    let calendar = document.getElementById('calendar')
+    let rows = calendar.rows
+
+    await loadSessions();
   } catch (error) {
     console.error("Error saving session: ", error);
     alert("Failed to create session. Please try again.");
