@@ -47,7 +47,8 @@ async function loadMyStudents(tutorFullName) {
 
     snapshot.forEach(docSnap => {
       const student = docSnap.data();
-      const studentModules = (student.modules || "").split(':').filter(Boolean);
+      
+      const studentModules = Object.keys(student.modules);
 
       // Filter student's modules to only those taught by this tutor
       const relevantModules = studentModules.filter(m => tutorModules.includes(m));
@@ -79,6 +80,7 @@ async function loadMyStudents(tutorFullName) {
       `).join('');
 
       const row = document.createElement('tr');
+      console.log(row)
       row.innerHTML = `
         <td>${student["student-number"] || "N/A"}</td>
         <td>${student.name || ""} ${student.surname || ""}</td>

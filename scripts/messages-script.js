@@ -6,8 +6,6 @@ import {
   query,
   where,
   doc,
-  collection,
-  db,
   updateDoc
 } from './firebase-config.js';
 
@@ -36,105 +34,84 @@ async function loadStudentMessages(user) {
     }
 
     const userEmail = user.email;
-    const studentQuery = query(collection(db, "Student"), where("student-email", "==", userEmail));
-    const studentSnapshot = await getDocs(studentQuery);
-    const studentDoc = studentSnapshot.docs[0];
-    const studentData = studentDoc.data();
-
-    document.getElementById('student-names').textContent = `${studentData.name} ${studentData.surname}`;
-    
 
     // Fetch all tutors once
     const tutorSnapshot = await getDocs(tutorsRef);
 
     // Fetch user messages
-    const messagesSnapshot = await getDocs(query(messagesRef, where('userid', '==', userEmail)));
-
-    messagesList = [];
+    const messagesSnapshot = await getDocs(messagesRef);
 
     messagesSnapshot.forEach(doc => {
       const data = doc.data();
-
+      console.log(data)
       let tutoName = "Unknown Tutor";
       // Search tutor explicitly in tutorSnapshot
       tutorSnapshot.forEach(tutorDoc => {
-        if (tutorDoc.id === data["tutor-id"]) {
+        if (tutorDoc.email === data["userid"]) {
           const tutorData = tutorDoc.data();
           tutoName = `${tutorData.firstname} ${tutorData.lastname}`;
         }
       });
 
-      messagesList.push({
+      let msg = {
         id: doc.id,
+        moduleCode: data.moduleCode,
+        moduleName: data.moduleName,
         content: data.message || data.content || '',
         timestamp: getTimestampMillis(data["upload-date"]),
         rawTimestamp: data["upload-date"] || null,
         module: data.module || "General",
         tutorName: tutoName,
-        tutorId: data.tutorId || "unknown",
         isRead: data.read ?? false
-      });
+      };
+      renderConversation(msg);
     });
 
-    // Sort all messages newest first
-    messagesList.sort((a, b) => b.timestamp - a.timestamp);
 
-    renderConversationList();
   } catch (error) {
     console.error("Error loading messages:", error);
     showErrorMessage(error);
   }
 }
 
-function renderConversationList() {
+function renderConversation(msg) {
   const container = document.querySelector('.conversation-list');
-  container.innerHTML = '';
-
-  if (messagesList.length === 0) {
-    container.innerHTML = '<p>No messages found.</p>';
-    return;
+  const item = document.createElement('div');
+  item.className = 'conversation';
+  item.dataset.messageId = msg.id;
+  
+  
+  if (!msg.isRead) {
+    item.classList.add('unread');  // highlight unread messages
   }
 
-  messagesList.forEach((msg, index) => {
-    const item = document.createElement('div');
-    item.className = 'conversation';
-    item.dataset.messageId = msg.id;
-    if (!msg.isRead) {
-      item.classList.add('unread');  // highlight unread messages
-    }
-    item.innerHTML = `
+  item.innerHTML = `
       <div class="conversation-header">
-        <h4>${msg.tutorName}</h4>
+        <h4>${msg.moduleName}</h4>
       </div>
       <p class="preview">${msg.content.length > 40 ? msg.content.slice(0, 40) + '...' : msg.content}</p>
       <small class="datetime">${formatDateTime(msg.rawTimestamp)}</small>
     `;
 
-    item.addEventListener('click', async () => {
-      document.querySelectorAll('.conversation').forEach(c => c.classList.remove('active'));
-      item.classList.add('active');
-      renderMessageView(msg);
+  item.addEventListener('click', async () => {
+    document.querySelectorAll('.conversation').forEach(c => c.classList.remove('active'));
+    item.classList.add('active');
+    renderMessageView(msg);
 
-      // If unread, update to read:true in Firestore & remove highlight
-      if (!msg.isRead) {
-        try {
-          await updateDoc(doc(messagesRef, msg.id), { read: true });
-          msg.isRead = true;
-          item.classList.remove('unread');
-        } catch (err) {
-          console.error('Failed to mark message as read:', err);
-        }
+    // If unread, update to read:true in Firestore & remove highlight
+    if (!msg.isRead) {
+      try {
+        await updateDoc(doc(messagesRef, msg.id), { read: true });
+        msg.isRead = true;
+        item.classList.remove('unread');
+      } catch (err) {
+        console.error('Failed to mark message as read:', err);
       }
-    });
-
-    container.appendChild(item);
-
-    // Activate first message by default
-    if (index === 0) {
-      item.classList.add('active');
-      renderMessageView(msg);
     }
   });
+
+  container.appendChild(item);
+
 }
 
 function renderMessageView(msg) {
