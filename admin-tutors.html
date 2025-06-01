@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>TutorPal - Admin Dashboard</title>
-    <link rel="stylesheet" href="styles/admin-dashboard.css">
+    <link rel="stylesheet" href="styles/admin-tutors.css">
     <link rel="stylesheet" href="styles/admin-base.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
@@ -16,6 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics-compat.js"></script>
 </head>
+
 <body>
     <div class="dashboard-container">
         <aside class="sidebar">
@@ -25,13 +27,13 @@
             </div>
             <nav>
                 <ul>
-                    <li class="active" data-tab="dashboard">
+                    <li data-tab="dashboard">
                         <a href="admin-dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                     </li>
                     <li data-tab="students">
                         <a href="admin-students.html"><i class="fas fa-user-graduate"></i> Students</a>
                     </li>
-                    <li data-tab="tutors">
+                    <li class="active" data-tab="tutors">
                         <a href="admin-tutors.html"><i class="fas fa-chalkboard-teacher"></i> Tutors</a>
                     </li>
                     <li data-tab="modules">
@@ -49,8 +51,6 @@
 
         <main class="main-content">
             <header class="top-bar">
-                <div class="search-bar" >
-                </div>
                 <div class="user-profile">
                     <span>Welcome, <strong>Admin</strong></span>
                     <img width="" height="29" src="https://img.icons8.com/material-rounded/24/user-male-circle.png"
@@ -59,35 +59,27 @@
             </header>
 
             <div class="content-wrapper">
-                <div class="tab-content active" id="dashboard-tab">
-                    <section class="dashboard-cards">
-                        <div class="card" onclick="location.href='admin-students.html'">
-                            <div class="card-icon blue">
-                                <i class="fas fa-user-graduate"></i>
-                            </div>
-                            <h3>Total Students</h3>
-                            <p id="total-students">0</p>
+                <div class="tab-content active" id="tutors-tab">
+                    <section class="tutors-section">
+                        <h2><i class="fas fa-chalkboard-teacher"></i> Tutor Management</h2>
+                        <div class="management-controls">
+                            <button id="add-tutor-btn"><i class="fas fa-plus"></i> Add Tutor</button>
                         </div>
-                        <div class="card" onclick="location.href='admin-tutors.html'">
-                            <div class="card-icon orange">
-                                <i class="fas fa-chalkboard-teacher"></i>
-                            </div>
-                            <h3>Total Tutors</h3>
-                            <p id="total-tutors">0</p>
-                        </div>
-                        <div class="card" onclick="location.href='admin-modules.html'">
-                            <div class="card-icon purple">
-                                <i class="fas fa-book"></i>
-                            </div>
-                            <h3>Total Modules</h3>
-                            <p id="total-modules">0</p>
-                        </div>
-                    </section>
-
-                    <section class="recent-activities">
-                        <h2><i class="fas fa-history"></i> Recent Activities</h2>
-                        <div id="activity-list" class="activity-list">
-                            <!-- Will be populated by JavaScript -->
+                        <div class="table-container">
+                            <table id="tutors-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tutor ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Modules</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
                         </div>
                     </section>
                 </div>
@@ -95,6 +87,35 @@
         </main>
     </div>
 
-    <script type="module" src="scripts/admin-main.js"></script>
+    <!-- Tutor Modal -->
+    <div class="modal" id="tutor-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 id="tutor-modal-title">Add New Tutor</h3>
+            <form id="tutor-form">
+                <input type="hidden" id="tutor-id">
+                <div class="form-group">
+                    <label for="tutor-firstname">First Name</label>
+                    <input type="text" id="tutor-firstname" required>
+                </div>
+                <div class="form-group">
+                    <label for="tutor-lastname">Last Name</label>
+                    <input type="text" id="tutor-lastname" required>
+                </div>
+                <div class="form-group">
+                    <label for="tutor-email">Email</label>
+                    <input type="email" id="tutor-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="staff-number">Staff Number</label>
+                    <input type="text" id="staff-number" required>
+                </div>
+                <button type="submit" class="btn">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="scripts/admin-tutors.js"></script>
 </body>
+
 </html>

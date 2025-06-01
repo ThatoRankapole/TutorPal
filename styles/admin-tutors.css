@@ -1,0 +1,256 @@
+@import url('admin-base.css');
+
+/* Tutors Section */
+.tutors-section {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.tutors-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: var(--navy-blue);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#add-tutor-btn {
+    background-color: var(--navy-blue);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#add-tutor-btn:hover,
+#add-tutor-btn:focus {
+    background-color: var(--dark-blue);
+    outline: none;
+}
+
+#refresh-tutors-btn {
+    background-color: #f1f1f1;
+    color: #555;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#refresh-tutors-btn:hover,
+#refresh-tutors-btn:focus {
+    background-color: #e0e0e0;
+    outline: none;
+}
+
+/* Reuse table and modal styles from students */
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 300px; /* prevent too narrow tables */
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+th {
+    background-color: var(--navy-blue);
+    color: white;
+    font-weight: 500;
+}
+
+tr:hover {
+    background-color: #f9f9f9;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.edit-btn, .delete-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.2s ease;
+}
+
+.edit-btn {
+    background-color: var(--medium-blue);
+    color: white;
+}
+
+.edit-btn:hover,
+.edit-btn:focus {
+    background-color: #2a6fb0;
+    outline: none;
+}
+
+.delete-btn {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.delete-btn:hover,
+.delete-btn:focus {
+    background-color: #c0392b;
+    outline: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .management-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* Make buttons full width on small screens for easier tapping */
+    #add-tutor-btn,
+    #refresh-tutors-btn,
+    .edit-btn,
+    .delete-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Make table more scrollable on small screens */
+    .table-container {
+        overflow-x: auto;
+    }
+}
+
+/* Modal Overlay */
+.modal {
+    display: none; /* Hide modal by default */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4); /* dark transparent background */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Show modal when active */
+.modal.active {
+    display: flex;
+}
+
+/* Modal content box */
+.modal-content {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    position: relative;
+}
+
+/* Close button inside modal */
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #444;
+    transition: color 0.2s ease;
+}
+
+.close-modal:hover {
+    color: #000;
+}
+/* Modal Form Styles */
+#tutor-modal .modal-content {
+    max-width: 480px;
+    padding: 25px 30px;
+    font-family: inherit;
+}
+
+#tutor-modal h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--navy-blue);
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+/* Form Groups */
+#tutor-modal .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+#tutor-modal label {
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--navy-blue);
+    font-size: 0.95rem;
+}
+
+#tutor-modal input[type="text"],
+#tutor-modal input[type="email"] {
+    padding: 8px 12px;
+    border: 1.5px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+#tutor-modal input[type="text"]:focus,
+#tutor-modal input[type="email"]:focus {
+    border-color: var(--medium-blue);
+    outline: none;
+}
+
+/* Submit Button */
+#tutor-modal .btn {
+    background-color: var(--navy-blue);
+    color: white;
+    padding: 10px 18px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+#tutor-modal .btn:hover,
+#tutor-modal .btn:focus {
+    background-color: var(--dark-blue);
+    outline: none;
+}
+
+/* Responsive adjustments for modal form */
+@media (max-width: 576px) {
+    #tutor-modal .modal-content {
+        padding: 20px;
+        width: 95%;
+    }
+}

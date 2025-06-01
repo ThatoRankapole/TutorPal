@@ -10,6 +10,21 @@ import {
 } from './firebase-config.js';
 import { formatTimestamp } from './main-script.js';
 
+// Define setupLogout to fix ReferenceError
+function setupLogout() {
+  const logoutBtn = document.querySelector('.logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      auth.signOut().then(() => {
+        window.location.replace('index.html');
+      }).catch((error) => {
+        console.error("Logout failed:", error);
+      });
+    });
+  }
+}
+
 // Load tutor-specific recent activities
 async function loadTutorActivities(user) {
   try {
@@ -106,30 +121,12 @@ async function loadTutorActivities(user) {
   }
 }
 
-// Logout handler
-function setupLogout() {
-  const logoutBtn = document.getElementById('logout-btn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', async () => {
-      try {
-        await auth.signOut();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.replace(`index.html?logout=${Date.now()}`);
-      } catch (error) {
-        console.error("Logout failed:", error);
-        alert("Logout failed. Please try again.");
-      }
-    });
-  }
-}
-
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
   auth.onAuthStateChanged((user) => {
     if (user) {
       loadTutorActivities(user);
-      setupLogout();
+      setupLogout(); // Now defined
     } else {
       window.location.replace('index.html');
     }

@@ -7,8 +7,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>TutorPal - Student Dashboard</title>
+    <title>TutorPal - My Courses</title>
     <link rel="stylesheet" href="styles/student-dashboard-style.css">
+    <link rel="stylesheet" href="styles/courses-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
@@ -21,10 +22,10 @@
             </div>
             <nav>
                 <ul>
-                    <li class="active" data-tab="dashboard">
+                    <li data-tab="dashboard">
                         <a href="student-dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
                     </li>
-                    <li data-tab="courses">
+                    <li class="active" data-tab="courses">
                         <a href="student-courses.html"><i class="fas fa-book"></i> My Courses</a>
                     </li>
                     <li data-tab="schedule">
@@ -56,34 +57,10 @@
             </header>
 
             <div class="content-wrapper">
-                <div class="tab-content active" id="dashboard-tab">
-                    <section class="dashboard-cards">
-                        <div class="card" onclick="location.href='student-courses.html'">
-                            <div class="card-icon blue">
-                                <i class="fas fa-book-open"></i>
-                            </div>
-                            <h3>Active Courses</h3>
-                            <p id="number-of-courses"></p>
-                        </div>
-                        <div class="card" onclick="location.href='student-schedule.html'">
-                            <div class="card-icon orange">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <h3>Upcoming Sessions</h3>
-                            <p id="number-of-meetings"></p>
-                        </div>
-                        <div class="card" onclick="location.href='student-messages.html'">
-                            <div class="card-icon purple">
-                                <i class="fas fa-comment-dots"></i>
-                            </div>
-                            <h3>Unread Messages</h3>
-                            <p id="unread-messages"></p>
-                        </div>
-                    </section>
-
-                    <section class="recent-activities">
-                        <h2><i class="fas fa-history"></i> Recent Activities</h2>
-                        <div id="activity-list" class="activity-list"></div>
+                <div class="tab-content active" id="courses-tab">
+                    <section class="courses-section">
+                        <h2><i class="fas fa-book"></i> My Courses</h2>
+                        <div id="course-list" class="course-list"></div>
                     </section>
                 </div>
             </div>
@@ -91,7 +68,6 @@
     </div>
 
     <script type="module" src="scripts/firebase-config.js"></script>
-    <script type="module" src="scripts/main-script.js"></script>
-    <script type="module" src="scripts/dashboard-script.js"></script>
+    <script type="module" src="scripts/courses-script.js"></script>
 </body>
 </html>

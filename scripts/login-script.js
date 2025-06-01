@@ -30,6 +30,8 @@ loginForm.addEventListener("submit", async (e) => {
 
     try {
       await signInWithEmailAndPassword(auth, studentEmail, password);
+      sessionStorage.setItem("userRole", "student");
+      sessionStorage.setItem("userEmail", studentEmail);
       window.location.href = "student-dashboard.html";
     } catch (error) {
       handleAuthError(error);
@@ -45,6 +47,8 @@ loginForm.addEventListener("submit", async (e) => {
       // Tutor login
       try {
         await signInWithEmailAndPassword(auth, username, password);
+        sessionStorage.setItem("userRole", "tutor");
+        sessionStorage.setItem("userEmail", username);
         window.location.href = "tutor-dashboard.html";
       } catch (error) {
         handleAuthError(error);
@@ -60,6 +64,8 @@ loginForm.addEventListener("submit", async (e) => {
         // Admin login
         try {
           await signInWithEmailAndPassword(auth, username, password);
+          sessionStorage.setItem("userRole", "admin");
+          sessionStorage.setItem("userEmail", username);
           window.location.href = "admin-dashboard.html";
         } catch (error) {
           handleAuthError(error);

@@ -23,7 +23,7 @@ export function formatTimestamp(timestamp) {
   });
 }
 
-// Make showTab available globally by attaching to window
+// Make showTab available globally
 window.showTab = function (tabId) {
   document.querySelectorAll('.tab-content').forEach(tab => {
     tab.classList.remove('active');
@@ -41,7 +41,7 @@ export function handleSearch() {
   alert(`Searching for: ${keyword}`);
 }
 
-// New function: Get the active courses count for the logged-in student
+// ✅ Fixed: Get the active courses count for the logged-in student
 async function getStudentActiveCoursesCount(user) {
   if (!user) return 0;
   const studentEmail = user.email;
@@ -55,12 +55,20 @@ async function getStudentActiveCoursesCount(user) {
     }
 
     const studentData = studentSnapshot.docs[0].data();
-    const modulesString = studentData.modules || "";
-    if (!modulesString.trim()) return 0;
+    const modules = studentData.modules;
 
-    return modulesString.includes(":")
-      ? modulesString.split(":").filter(code => code.trim() !== "").length
-      : 1;
+    if (modules && typeof modules === "object") {
+      return Object.keys(modules).length;
+    }
+
+    // Optional: fallback for legacy string format
+    if (typeof modules === "string" && modules.trim()) {
+      return modules.includes(":")
+        ? modules.split(":").filter(code => code.trim() !== "").length
+        : 1;
+    }
+
+    return 0;
 
   } catch (error) {
     console.error("Error getting student active courses count:", error);
@@ -68,7 +76,7 @@ async function getStudentActiveCoursesCount(user) {
   }
 }
 
-// Initialize dashboard counters with user context
+// ✅ Fixed: Safely initialize dashboard counters
 async function initializeCounters() {
   try {
     const user = auth.currentUser;
@@ -77,20 +85,15 @@ async function initializeCounters() {
       return;
     }
 
-    // Get student-specific active courses count
     const coursesCount = await getStudentActiveCoursesCount(user);
 
-    // Get today's date string yyyy-mm-dd
     const today = new Date();
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const dd = String(today.getDate()).padStart(2, '0');
     const todayStr = `${yyyy}-${mm}-${dd}`;
 
-    // Start fetching unread messages count
     const unreadCountPromise = getCountFromServer(query(messagesRef, where("read", "==", false)));
-
-    // Fetch all sessions and count upcoming
     const sessionsSnapshot = await getDocs(sessionsRef);
 
     let upcomingSessionsCount = 0;
@@ -101,27 +104,28 @@ async function initializeCounters() {
       }
     });
 
-    // Wait for unread messages count result
     const unreadCount = await unreadCountPromise;
 
-    // Update your UI
-    document.getElementById('number-of-courses').textContent = `${coursesCount}`;  // assuming defined
-    document.getElementById('number-of-meetings').textContent = upcomingSessionsCount;
-    document.getElementById('unread-messages').textContent = unreadCount.data().count;
+    // ✅ Check if elements exist before updating
+    const coursesElem = document.getElementById('number-of-courses');
+    const meetingsElem = document.getElementById('number-of-meetings');
+    const messagesElem = document.getElementById('unread-messages');
 
+    if (coursesElem) coursesElem.textContent = `${coursesCount}`;
+    if (meetingsElem) meetingsElem.textContent = upcomingSessionsCount;
+    if (messagesElem) messagesElem.textContent = unreadCount.data().count;
 
   } catch (error) {
     console.error("Error initializing counters:", error);
   }
 }
 
+// Run when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  // Wait for Firebase auth state to initialize
   auth.onAuthStateChanged(user => {
     if (user) {
       initializeCounters();
     } else {
-      // Optionally redirect or show login
       console.warn("User not logged in");
     }
   });

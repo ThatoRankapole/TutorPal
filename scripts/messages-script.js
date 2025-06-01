@@ -6,6 +6,8 @@ import {
   query,
   where,
   doc,
+  collection,
+  db,
   updateDoc
 } from './firebase-config.js';
 
@@ -34,6 +36,13 @@ async function loadStudentMessages(user) {
     }
 
     const userEmail = user.email;
+    const studentQuery = query(collection(db, "Student"), where("student-email", "==", userEmail));
+    const studentSnapshot = await getDocs(studentQuery);
+    const studentDoc = studentSnapshot.docs[0];
+    const studentData = studentDoc.data();
+
+    document.getElementById('student-names').textContent = `${studentData.name} ${studentData.surname}`;
+    
 
     // Fetch all tutors once
     const tutorSnapshot = await getDocs(tutorsRef);

@@ -6,8 +6,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>TutorPal - Tutor Dashboard</title>
+    <title>TutorPal - My Modules</title>
     <link rel="stylesheet" href="styles/tutor-dashboard-style.css">
+    <link rel="stylesheet" href="styles/tutor-modules-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -19,10 +20,10 @@
             </div>
             <nav>
               <ul>
-                <li class="active" data-tab="dashboard">
+                <li data-tab="dashboard">
                   <a href="tutor-dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
                 </li>
-                <li data-tab="modules">
+                <li class="active" data-tab="modules">
                   <a href="tutor-modules.html"><i class="fas fa-book"></i> My Modules</a>
                 </li>
                 <li data-tab="schedule">
@@ -57,42 +58,33 @@
             </header>
 
             <div class="content-wrapper">
-                <div class="tab-content active" id="dashboard-tab">
-                    <section class="dashboard-cards">
-                        <div class="card" onclick="location.href='tutor-modules.html'">
-                            <div class="card-icon blue">
-                                <i class="fas fa-book-open"></i>
-                            </div>
-                            <h3>Assigned Modules</h3>
-                            <p id="number-of-modules"></p>
+                <div class="tab-content active" id="modules-tab">
+                    <section class="modules-section">
+                        <h2><i class="fas fa-book"></i> Module Management</h2>
+                        <div class="management-controls">
+                            <button id="refresh-modules-btn"><i class="fas fa-sync-alt"></i> Refresh</button>
                         </div>
-                        <div class="card" onclick="location.href='tutor-schedule.html'">
-                            <div class="card-icon orange">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <h3>Upcoming Sessions</h3>
-                            <p id="number-of-sessions"></p>
+                        <div class="table-container">
+                            <table id="modules-table">
+                                <thead>
+                                    <tr>
+                                        <th>Module Code</th>
+                                        <th>Module Name</th>
+                                        <th>Credits</th>
+                                        <th>Assigned Tutor</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
-                        <div class="card" onclick="location.href='tutor-students.html'">
-                            <div class="card-icon purple">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <h3>Students</h3>
-                            <p id="number-of-students"></p>
-                        </div>
-                    </section>
-
-                    <section class="recent-activities">
-                        <h2><i class="fas fa-history"></i> Recent Activities</h2>
-                        <div id="activity-list" class="activity-list"></div>
                     </section>
                 </div>
             </div>
         </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script type="module" src="scripts/firebase-config.js"></script>
-    <script type="module" src="scripts/tutor-dashboard-script.js"></script>
+    <script type="module" src="scripts/tutor-modules-script.js"></script>
 </body>
 </html>

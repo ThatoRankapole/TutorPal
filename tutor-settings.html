@@ -6,8 +6,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>TutorPal - Tutor Dashboard</title>
+    <title>TutorPal - Settings</title>
     <link rel="stylesheet" href="styles/tutor-dashboard-style.css">
+    <link rel="stylesheet" href="styles/tutor-settings-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -19,7 +20,7 @@
             </div>
             <nav>
               <ul>
-                <li class="active" data-tab="dashboard">
+                <li data-tab="dashboard">
                   <a href="tutor-dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
                 </li>
                 <li data-tab="modules">
@@ -34,7 +35,7 @@
                 <li data-tab="messages">
                   <a href="tutor-messages.html"><i class="fas fa-comments"></i> Messages</a>
                 </li>
-                <li data-tab="settings">
+                <li class="active" data-tab="settings">
                   <a href="tutor-settings.html"><i class="fas fa-cog"></i> Settings</a>
                 </li>
               </ul>
@@ -57,42 +58,50 @@
             </header>
 
             <div class="content-wrapper">
-                <div class="tab-content active" id="dashboard-tab">
-                    <section class="dashboard-cards">
-                        <div class="card" onclick="location.href='tutor-modules.html'">
-                            <div class="card-icon blue">
-                                <i class="fas fa-book-open"></i>
+                <div class="tab-content active" id="settings-tab">
+                    <section class="settings-section">
+                        <h2><i class="fas fa-cog"></i> Settings</h2>
+                        <div class="settings-container">
+                            <div class="settings-card">
+                                <h3><i class="fas fa-user"></i> Profile Information</h3>
+                                <div class="profile-picture-container">
+                                    <img id="profile-picture" src="https://img.icons8.com/material-rounded/24/user-male-circle.png" alt="Profile Picture">
+                                    <div class="picture-buttons">
+                                        <button id="change-picture-btn" class="icon-btn">
+                                            <i class="fas fa-camera"></i> Change
+                                        </button>
+                                        <button id="remove-picture-btn" class="icon-btn">
+                                            <i class="fas fa-trash"></i> Remove
+                                        </button>
+                                    </div>
+                                    <input type="file" id="profile-picture-upload" accept="image/*" style="display: none;">
+                                </div>
+                                <div class="profile-info">
+                                    <div class="info-item">
+                                        <span class="info-label">Name:</span>
+                                        <span id="tutor-name" class="info-value"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Surname:</span>
+                                        <span id="tutor-surname" class="info-value"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Email:</span>
+                                        <span id="tutor-email" class="info-value"></span>
+                                    </div>
+                                </div>
+                                <button id="open-password-change" class="change-password-btn">
+                                    <i class="fas fa-key"></i> Change Password
+                                </button>
                             </div>
-                            <h3>Assigned Modules</h3>
-                            <p id="number-of-modules"></p>
                         </div>
-                        <div class="card" onclick="location.href='tutor-schedule.html'">
-                            <div class="card-icon orange">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <h3>Upcoming Sessions</h3>
-                            <p id="number-of-sessions"></p>
-                        </div>
-                        <div class="card" onclick="location.href='tutor-students.html'">
-                            <div class="card-icon purple">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <h3>Students</h3>
-                            <p id="number-of-students"></p>
-                        </div>
-                    </section>
-
-                    <section class="recent-activities">
-                        <h2><i class="fas fa-history"></i> Recent Activities</h2>
-                        <div id="activity-list" class="activity-list"></div>
                     </section>
                 </div>
             </div>
         </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script type="module" src="scripts/firebase-config.js"></script>
-    <script type="module" src="scripts/tutor-dashboard-script.js"></script>
+    <script type="module" src="scripts/tutor-settings-script.js"></script>
 </body>
 </html>

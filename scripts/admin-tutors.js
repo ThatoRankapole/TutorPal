@@ -9,7 +9,9 @@ import {
     collection,
     auth,
     createUserWithEmailAndPassword,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
+    query,
+    where
 } from "./firebase-config.js";
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -25,33 +27,39 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('tutor-form').reset();
     });
 
-    document.getElementById('refresh-tutors-btn').addEventListener('click', function () {
+    async function loadTutors() {
         const tutorsTable = document.getElementById('tutors-table');
         const tableBody = tutorsTable.querySelector('tbody');
         tableBody.innerHTML = '<tr><td colspan="5">Loading tutors...</td></tr>';
 
-        const tutorsRef = collection(db, 'Tutor');
+        try {
+            const tutorsRef = collection(db, 'Tutor');
+            const querySnapshot = await getDocs(tutorsRef);
 
-        getDocs(tutorsRef).then((querySnapshot) => {
             tableBody.innerHTML = '';
 
             if (querySnapshot.empty) {
                 tableBody.innerHTML = '<tr><td colspan="5">No tutors found</td></tr>';
-                document.getElementById('total-tutors').textContent = '0';
                 return;
             }
 
-            document.getElementById('total-tutors').textContent = querySnapshot.size;
-
-            querySnapshot.forEach((docSnap) => {
+            for (const docSnap of querySnapshot.docs) {
                 const tutor = docSnap.data();
+                const tutorFullName = `${tutor.firstname} ${tutor.lastname}`.trim();
 
-                // Split modules by colon and join with <br> to display line by line
-                const modulesList = (tutor.modules || '')
-                    .split(':')
-                    .map(mod => mod.trim())
-                    .filter(Boolean)
-                    .join('<br>');
+                let modulesList = 'N/A';
+
+                try {
+                    const modulesRef = collection(db, 'Modules');
+                    const modulesQuery = query(modulesRef, where('module-tutor', '==', tutorFullName));
+                    const modulesSnap = await getDocs(modulesQuery);
+
+                    if (!modulesSnap.empty) {
+                        modulesList = modulesSnap.docs.map(moduleDoc => moduleDoc.id).join('<br>');
+                    }
+                } catch (modErr) {
+                    console.error('Error fetching modules for tutor:', tutorFullName, modErr);
+                }
 
                 const row = document.createElement('tr');
 
@@ -66,12 +74,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     </td>
                 `;
                 tableBody.appendChild(row);
-            });
-        }).catch((error) => {
+            }
+        } catch (error) {
             console.error("Error loading tutors: ", error);
             tableBody.innerHTML = '<tr><td colspan="5">Error loading tutors</td></tr>';
-        });
-    });
+        }
+    }
+
+    loadTutors();
 
     document.addEventListener("click", async (e) => {
         if (e.target.closest(".edit-btn")) {
@@ -89,7 +99,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById("tutor-firstname").value = tutor.firstname || '';
                 document.getElementById("tutor-lastname").value = tutor.lastname || '';
                 document.getElementById("tutor-email").value = tutor.email || '';
-                // Removed specialization field population since it's not in form anymore
 
                 document.getElementById("tutor-modal-title").textContent = "Edit Tutor";
                 document.getElementById("tutor-modal").style.display = "flex";
@@ -111,29 +120,35 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const tutorData = {
-            'staff-number': staffNumber,
-            firstname,
-            lastname,
-            email
-            // Removed specialization from save/update
-        };
-
         try {
             if (tutorId) {
                 const tutorRef = doc(db, "Tutor", tutorId);
-                await updateDoc(tutorRef, tutorData);
+                await updateDoc(tutorRef, {
+                    'staff-number': staffNumber,
+                    firstname,
+                    lastname,
+                    email
+                });
                 alert(`Tutor ${firstname} ${lastname} updated successfully.`);
             } else {
                 const randomPassword = Math.random().toString(36).slice(-10);
-                await createUserWithEmailAndPassword(auth, email, randomPassword);
-                await setDoc(doc(db, 'Tutor', staffNumber), tutorData);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, randomPassword);
+                const uid = userCredential.user.uid;
+
+                await setDoc(doc(db, 'Tutor', staffNumber), {
+                    'staff-number': staffNumber,
+                    firstname,
+                    lastname,
+                    email,
+                    uid
+                });
+
                 await sendPasswordResetEmail(auth, email);
                 alert(`Tutor ${firstname} ${lastname} added successfully! A password reset email has been sent to ${email}.`);
             }
 
             document.getElementById('tutor-modal').style.display = 'none';
-            document.getElementById('refresh-tutors-btn').click();
+            loadTutors();
         } catch (error) {
             console.error('Error saving tutor:', error);
             alert('Error saving tutor: ' + error.message);
@@ -150,23 +165,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!tutorSnap.exists()) throw new Error("Tutor not found");
 
-            const tutorEmail = tutorSnap.data().email;
+            const tutorData = tutorSnap.data();
+            const tutorEmail = tutorData.email;
 
             await deleteDoc(tutorRef);
-            console.log(`Tutor account to delete from auth: ${tutorEmail}`);
+            console.log(`Tutor deleted from Firestore. Email: ${tutorEmail}`);
 
             if (btnElement && btnElement.closest) {
                 const row = btnElement.closest('tr');
                 if (row) row.remove();
             }
 
-            const tutorCountElement = document.getElementById('total-tutors');
-            if (tutorCountElement) {
-                const currentCount = parseInt(tutorCountElement.textContent) || 0;
-                tutorCountElement.textContent = Math.max(0, currentCount - 1);
-            }
-
             alert(`${tutorName} deleted successfully.`);
+            loadTutors();
         } catch (error) {
             console.error("Error deleting tutor:", error);
             alert("Error deleting tutor: " + error.message);

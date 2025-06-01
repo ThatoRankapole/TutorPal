@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>TutorPal - Admin Dashboard</title>
+    <link rel="stylesheet" href="styles/admin-students.css">
+    <link rel="stylesheet" href="styles/admin-base.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics-compat.js"></script>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img width="100" height="90" src="https://img.icons8.com/bubbles/100/training.png" alt="training" />
+                <h2>TutorPal Admin</h2>
+            </div>
+            <nav>
+                <ul>
+                    <li data-tab="dashboard">
+                        <a href="admin-dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li class="active" data-tab="students">
+                        <a href="admin-students.html"><i class="fas fa-user-graduate"></i> Students</a>
+                    </li>
+                    <li data-tab="tutors">
+                        <a href="admin-tutors.html"><i class="fas fa-chalkboard-teacher"></i> Tutors</a>
+                    </li>
+                    <li data-tab="modules">
+                        <a href="admin-modules.html"><i class="fas fa-book"></i> Modules</a>
+                    </li>
+                    <li data-tab="settings">
+                        <a href="admin-settings.html"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="index.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+
+                <div class="user-profile">
+                    <span>Welcome, <strong>Admin</strong></span>
+                    <img width="" height="29" src="https://img.icons8.com/material-rounded/24/user-male-circle.png"
+                        alt="user-male-circle" />
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <div class="tab-content active" id="students-tab">
+                    <section class="students-section">
+                        <h2><i class="fas fa-user-graduate"></i> Student Management</h2>
+                        <div class="management-controls">
+                            <button id="add-student-btn"><i class="fas fa-plus"></i> Add Student</button>
+                            <div class="search-bar">
+                                <input id="keyword" type="text" placeholder="Search...">
+                                <button onclick="handleSearch()"><i class="fas fa-search"></i></button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table id="students-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student Number</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Program</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Student Modal -->
+    <div class="modal" id="student-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 id="student-modal-title">Add New Student</h3>
+            <form id="student-form">
+                <input type="hidden" id="student-id">
+
+                <div class="form-group">
+                    <label for="student-number">Student Number</label>
+                    <input type="text" id="student-number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="id-number">ID Number</label>
+                    <input type="text" id="id-number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">First Name</label>
+                    <input type="text" id="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="surname">Surname</label>
+                    <input type="text" id="surname" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="student-email">Email</label>
+                    <input type="email" id="student-email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="course-code">Course Code</label>
+                    <select id="course-code" required>
+                        <option value="" disabled selected>Select course code</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn">Continue</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Module Selection Modal -->
+    <div class="modal" id="module-selection-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Select Modules</h3>
+            <form id="module-selection-form">
+                <div id="module-checkboxes">
+                    <!-- Dynamically injected module checkboxes will go here -->
+                </div>
+                <button type="submit" class="btn">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="scripts/admin-students.js"></script>
+</body>
+
+</html>

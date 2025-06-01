@@ -47,6 +47,7 @@ async function loadStudentProfile() {
     document.getElementById("student-surname").textContent = studentData.surname || "";
     document.getElementById("student-number").textContent = studentNumber || "";
     document.getElementById("student-email").textContent = studentData["student-email"] || user.email || "";
+    document.getElementById('student-names').textContent = `${studentData.name} ${studentData.surname}`;
 
     // Load profile picture with fallback
     const profilePicture = document.getElementById('profile-picture');
@@ -145,6 +146,7 @@ async function removeProfilePicture() {
     await updateDoc(doc(db, "Student", studentDoc.id), {
       profilePictureUrl: DEFAULT_PROFILE_PIC
     });
+
 
     return DEFAULT_PROFILE_PIC;
   } catch (error) {

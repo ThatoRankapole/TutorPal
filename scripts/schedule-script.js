@@ -9,39 +9,51 @@ import {
   deleteDoc,
   collection,
   serverTimestamp,
-  auth
+  auth,
+  where
 } from './firebase-config.js';
 
-// References for sessions collection
 const sessionsRef = collection(db, "sessions");
 
-// Calendar variables
+const eventNameInput = document.getElementById("event-name");
+const eventDateInput = document.getElementById("event-date");
+const eventDescriptionInput = document.getElementById("event-description");
+const eventForm = document.getElementById("event-form");
+const eventModal = document.getElementById("event-modal");
+let saveEventBtn = document.getElementById("save-event-btn");
+const eventHeading = document.getElementById("event-manipulation-heading");
+
 let today = new Date();
 let currentMonth = today.getMonth();
 let currentYear = today.getFullYear();
 const monthNames = ["January", "February", "March", "April", "May", "June",
-                    "July", "August", "September", "October", "November", "December"];
-let eventData = []; // will hold both events and sessions
+  "July", "August", "September", "October", "November", "December"];
+let eventData = [];
 
-// Fetch events AND sessions from the database for the logged-in user
 async function fetchEventsFromDatabase() {
   try {
     const user = auth.currentUser;
+    const userEmail = user.email;
+    const studentQuery = query(collection(db, "Student"), where("student-email", "==", userEmail));
+    const studentSnapshot = await getDocs(studentQuery);
+    const studentDoc = studentSnapshot.docs[0];
+    const studentData = studentDoc.data();
+
+    document.getElementById('student-names').textContent = `${studentData.name} ${studentData.surname}`;
     if (!user || !user.email) {
       console.error("User not logged in.");
       return;
     }
 
-    eventData.length = 0; // Clear existing events
+    eventData.length = 0;
 
-    // Fetch Events
-    let qEvents = query(eventsRef);
+    const qEvents = query(eventsRef);
     const eventsSnapshot = await getDocs(qEvents);
-    eventsSnapshot.forEach((doc) => {
-      const event = doc.data();
+    eventsSnapshot.forEach((docSnap) => {
+      const event = docSnap.data();
       if (event["event-date"] && event["userid"] === user.email) {
         eventData.push({
-          id: doc.id,
+          id: docSnap.id,
           date: event["event-date"],
           name: event["event-name"] || "Event",
           description: event["event-description"] || "",
@@ -50,17 +62,21 @@ async function fetchEventsFromDatabase() {
       }
     });
 
-    // Fetch Sessions (userid === user.email OR userid === "everyone")
-    let qSessions = query(sessionsRef);
+    const qSessions = query(sessionsRef);
     const sessionsSnapshot = await getDocs(qSessions);
-    sessionsSnapshot.forEach((doc) => {
-      const session = doc.data();
+    sessionsSnapshot.forEach((docSnap) => {
+      const session = docSnap.data();
       if (session.date && (session.userid === user.email || session.userid === "everyone")) {
         eventData.push({
-          id: doc.id,
+          id: docSnap.id,
           date: session.date,
           name: session.title || "Session",
-          description: `Module: ${session.moduleName || ''}<br>Time: ${session.time || ''}<br>Duration: ${session.duration || ''} mins<br>Status: ${session.status || ''}`,
+          description: `
+            <p><strong>Module:</strong> ${session.moduleName || ''}</p>
+            <p><strong>Time:</strong> ${session.time || ''}</p>
+            <p><strong>Duration:</strong> ${session.duration || ''} mins</p>
+            <p><strong>Status:</strong> ${session.status || ''}</p>
+          `,
           type: "session"
         });
       }
@@ -72,10 +88,7 @@ async function fetchEventsFromDatabase() {
 }
 
 function showEventsForDate(dateString) {
-  const existingPopup = document.querySelector('.event-popup');
-  if (existingPopup) {
-    existingPopup.remove();
-  }
+  document.querySelector('.event-popup')?.remove();
 
   const events = eventData.filter(e => e.date === dateString);
   if (events.length === 0) return;
@@ -91,7 +104,7 @@ function showEventsForDate(dateString) {
     return `
       <div class="event-tooltip">
         <strong>${e.name}</strong>
-        ${e.description ? `<p>${e.description}</p>` : ''}
+        ${e.description ? `<div>${e.description}</div>` : ''}
         ${extraButtons}
       </div>
     `;
@@ -101,7 +114,7 @@ function showEventsForDate(dateString) {
   tooltip.className = 'event-popup';
   tooltip.innerHTML = `
     <div class="event-popup-content">
-      <span class="close-popup">&times;</span>
+      <span class="close-popup" style="cursor:pointer;">&times;</span>
       <h3>Events on ${new Date(dateString).toLocaleDateString()}</h3>
       ${eventDetails}
     </div>
@@ -109,43 +122,41 @@ function showEventsForDate(dateString) {
 
   document.body.appendChild(tooltip);
 
-  // Only add edit/delete handlers to events (not sessions)
   tooltip.querySelectorAll('.edit-event-btn').forEach(button => {
-    button.addEventListener('click', function() {
-      const eventId = this.getAttribute('data-id');
+    button.addEventListener('click', () => {
+      const eventId = button.getAttribute('data-id');
       const event = eventData.find(e => e.id === eventId);
       if (event) editEvent(event);
     });
   });
 
   tooltip.querySelectorAll('.delete-event-btn').forEach(button => {
-    button.addEventListener('click', function() {
-      const eventId = this.getAttribute('data-id');
+    button.addEventListener('click', () => {
+      const eventId = button.getAttribute('data-id');
       deleteEvent(eventId);
     });
   });
 
-  tooltip.querySelector('.close-popup').onclick = function() {
-    document.body.removeChild(tooltip);
-  };
+  tooltip.querySelector('.close-popup').onclick = () => tooltip.remove();
 }
 
 async function editEvent(event) {
-  // Close any open popup before opening modal
   document.querySelector('.event-popup')?.remove();
 
-  const modal = document.getElementById("event-modal");
-  document.getElementById("event-name").value = event.name;
-  document.getElementById("event-date").value = event.date;
-  document.getElementById("event-description").value = event.description || '';
-  document.getElementById("event-manipulation-heading").textContent = "Edit Event";
+  eventNameInput.value = event.name;
+  eventDateInput.value = event.date;
+  eventDescriptionInput.value = event.description || '';
+  eventHeading.textContent = "Edit Event";
 
-  const saveBtn = document.getElementById("save-event-btn");
-  saveBtn.textContent = "Update Event";
-  saveBtn.onclick = async function() {
-    const name = document.getElementById("event-name").value.trim();
-    const date = document.getElementById("event-date").value;
-    const description = document.getElementById("event-description").value.trim();
+  const newSaveBtn = saveEventBtn.cloneNode(true);
+  saveEventBtn.parentNode.replaceChild(newSaveBtn, saveEventBtn);
+  saveEventBtn = newSaveBtn;
+  saveEventBtn.textContent = "Update Event";
+
+  saveEventBtn.addEventListener('click', async () => {
+    const name = eventNameInput.value.trim();
+    const date = eventDateInput.value;
+    const description = eventDescriptionInput.value.trim();
 
     if (name && date) {
       try {
@@ -155,7 +166,7 @@ async function editEvent(event) {
           "event-description": description
         });
 
-        modal.style.display = "none";
+        eventModal.style.display = "none";
         await generateCalendar(currentMonth, currentYear);
       } catch (error) {
         console.error("Error updating event:", error);
@@ -164,9 +175,9 @@ async function editEvent(event) {
     } else {
       alert("Please fill in the name and date.");
     }
-  };
+  });
 
-  modal.style.display = "block";
+  eventModal.style.display = "block";
 }
 
 async function deleteEvent(eventId) {
@@ -204,36 +215,38 @@ async function generateCalendar(month, year) {
         break;
       } else {
         const thisDate = new Date(year, month, date);
-        const formatted = thisDate.getFullYear() + "-" +
-                          String(thisDate.getMonth() + 1).padStart(2, '0') + "-" +
-                          String(thisDate.getDate()).padStart(2, '0');
+        const formatted = `${thisDate.getFullYear()}-${String(thisDate.getMonth() + 1).padStart(2, '0')}-${String(thisDate.getDate()).padStart(2, '0')}`;
         cell.textContent = date;
 
         if (eventData.find(e => e.date === formatted)) {
           cell.classList.add("event-day");
-          cell.onclick = function() {
-            showEventsForDate(formatted);
-          };
+          cell.style.cursor = "pointer";
+          cell.onclick = () => showEventsForDate(formatted);
+        } else {
+          cell.onclick = null;
+          cell.style.cursor = "default";
         }
 
-        if (date === today.getDate() &&
-            year === today.getFullYear() &&
-            month === today.getMonth()) {
+        if (date === today.getDate() && year === today.getFullYear() && month === today.getMonth()) {
           cell.classList.add("today");
         }
+
         date++;
       }
+
       row.appendChild(cell);
     }
+
     calendarBody.appendChild(row);
   }
 }
 
-async function saveNewEvent() {
-  const name = document.getElementById("event-name").value.trim();
-  const date = document.getElementById("event-date").value;
-  const description = document.getElementById("event-description").value.trim();
+async function saveNewEvent(e) {
+  e.preventDefault();
 
+  const name = eventNameInput.value.trim();
+  const date = eventDateInput.value;
+  const description = eventDescriptionInput.value.trim();
   const user = auth.currentUser;
 
   if (name && date && user?.email) {
@@ -246,41 +259,57 @@ async function saveNewEvent() {
         "created-at": serverTimestamp()
       });
 
-      document.getElementById("event-modal").style.display = "none";
+      eventModal.style.display = "none";
       await generateCalendar(currentMonth, currentYear);
     } catch (error) {
       console.error("Error saving event:", error);
       alert("Error saving event to database");
     }
   } else {
-    alert("Please fill in the name, date, and make sure you're logged in.");
+    alert("Please fill in all fields and make sure you're logged in.");
   }
 }
 
 async function initializeCalendar() {
   await generateCalendar(currentMonth, currentYear);
 
-  const modal = document.getElementById("event-modal");
   const openBtn = document.getElementById("add-event-btn");
   const closeBtn = document.getElementById("close-modal");
-  const saveBtn = document.getElementById("save-event-btn");
-  document.getElementById("event-manipulation-heading").textContent = "Add New Event";
 
-  openBtn.onclick = () => {
-    document.getElementById("event-name").value = "";
-    document.getElementById("event-date").value = "";
-    document.getElementById("event-description").value = "";
-    saveBtn.textContent = "Save Event";
-    saveBtn.onclick = saveNewEvent;
-    modal.style.display = "block";
+  eventHeading.textContent = "Add New Event";
+
+  if (openBtn) {
+    openBtn.onclick = () => {
+      eventNameInput.value = "";
+      eventDateInput.value = "";
+      eventDescriptionInput.value = "";
+      eventHeading.textContent = "Add New Event";
+
+      const newSaveBtn = saveEventBtn.cloneNode(true);
+      saveEventBtn.parentNode.replaceChild(newSaveBtn, saveEventBtn);
+      saveEventBtn = newSaveBtn;
+      saveEventBtn.textContent = "Save Event";
+
+      saveEventBtn.addEventListener("click", saveNewEvent);
+      eventModal.style.display = "block";
+    };
+  }
+
+  if (eventForm) {
+    eventForm.removeEventListener("submit", saveNewEvent);
+    eventForm.addEventListener("submit", saveNewEvent);
+  }
+
+  if (closeBtn) {
+    closeBtn.onclick = () => eventModal.style.display = "none";
+  }
+
+  window.onclick = e => {
+    if (e.target === eventModal) eventModal.style.display = "none";
   };
-
-  closeBtn.onclick = () => modal.style.display = "none";
-  window.onclick = e => { if (e.target === modal) modal.style.display = "none"; }
 }
 
-// Change month navigation
-window.changeMonth = function(offset) {
+window.changeMonth = function (offset) {
   currentMonth += offset;
   if (currentMonth > 11) {
     currentMonth = 0;
@@ -292,14 +321,12 @@ window.changeMonth = function(offset) {
   generateCalendar(currentMonth, currentYear);
 };
 
-// Wait for Firebase Auth to initialize and user to be logged in before starting calendar
 document.addEventListener('DOMContentLoaded', () => {
   auth.onAuthStateChanged(user => {
     if (user) {
       initializeCalendar();
     } else {
       console.error("User not logged in.");
-      // Optionally, show login prompt here
     }
   });
 });

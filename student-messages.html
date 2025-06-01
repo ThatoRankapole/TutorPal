@@ -7,8 +7,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>TutorPal - Student Dashboard</title>
+    <title>TutorPal - Messages</title>
     <link rel="stylesheet" href="styles/student-dashboard-style.css">
+    <link rel="stylesheet" href="styles/messages-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
@@ -21,7 +22,7 @@
             </div>
             <nav>
                 <ul>
-                    <li class="active" data-tab="dashboard">
+                    <li data-tab="dashboard">
                         <a href="student-dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
                     </li>
                     <li data-tab="courses">
@@ -30,7 +31,7 @@
                     <li data-tab="schedule">
                         <a href="student-schedule.html"><i class="fas fa-calendar-alt"></i> Schedule</a>
                     </li>
-                    <li data-tab="messages">
+                    <li class="active" data-tab="messages">
                         <a href="student-messages.html"><i class="fas fa-comments"></i> Messages</a>
                     </li>
                     <li data-tab="predicate-calculator">
@@ -53,37 +54,24 @@
                     <img id="profile-pic" width="29" height="29"
                         src="https://img.icons8.com/material-rounded/24/user-male-circle.png" alt="Profile Picture" />
                 </div>
+                <div class="search-bar">
+                    <input id="keyword" type="text" placeholder="Search...">
+                    <button onclick="handleSearch()"><i class="fas fa-search"></i></button>
+                </div>
             </header>
 
             <div class="content-wrapper">
-                <div class="tab-content active" id="dashboard-tab">
-                    <section class="dashboard-cards">
-                        <div class="card" onclick="location.href='student-courses.html'">
-                            <div class="card-icon blue">
-                                <i class="fas fa-book-open"></i>
+                <div class="tab-content active" id="messages-tab">
+                    <section class="messages-section">
+                        <h2><i class="fas fa-comments"></i> Messages</h2>
+                        <div class="messages-container">
+                            <div class="conversation-list">
+                                <!-- JavaScript will inject .conversation items here -->
                             </div>
-                            <h3>Active Courses</h3>
-                            <p id="number-of-courses"></p>
-                        </div>
-                        <div class="card" onclick="location.href='student-schedule.html'">
-                            <div class="card-icon orange">
-                                <i class="fas fa-calendar-check"></i>
+                            <div class="message-view">
+                                <!-- JavaScript will inject message content here -->
                             </div>
-                            <h3>Upcoming Sessions</h3>
-                            <p id="number-of-meetings"></p>
                         </div>
-                        <div class="card" onclick="location.href='student-messages.html'">
-                            <div class="card-icon purple">
-                                <i class="fas fa-comment-dots"></i>
-                            </div>
-                            <h3>Unread Messages</h3>
-                            <p id="unread-messages"></p>
-                        </div>
-                    </section>
-
-                    <section class="recent-activities">
-                        <h2><i class="fas fa-history"></i> Recent Activities</h2>
-                        <div id="activity-list" class="activity-list"></div>
                     </section>
                 </div>
             </div>
@@ -91,7 +79,6 @@
     </div>
 
     <script type="module" src="scripts/firebase-config.js"></script>
-    <script type="module" src="scripts/main-script.js"></script>
-    <script type="module" src="scripts/dashboard-script.js"></script>
+    <script type="module" src="scripts/messages-script.js"></script>
 </body>
 </html>

@@ -1,51 +1,54 @@
-import { moduleRef, getDocs, updateDoc, doc as docRef } from './firebase-config.js';
+import {
+  db,
+  moduleRef,
+  tutorsRef,
+  studentRef,
+  getDocs,
+  updateDoc,
+  doc as docRef,
+  query,
+  where,
+  auth,
+  onAuthStateChanged
+} from './firebase-config.js';
 
 const moduleSelect = document.getElementById('moduleSelect');
-
-// Updated IDs based on your HTML
 const selectedQuizzes = document.getElementById('selectedQuizzes');
 const selectedAssignments = document.getElementById('selectedAssignments');
 const selectedProjects = document.getElementById('selectedProjects');
 const selectedClassTests = document.getElementById('selectedClassTests');
 const selectedSemesterTests = document.getElementById('selectedSemTests');
-
-// Counters
 const numQuizzes = document.getElementById('numQuizzes');
 const numAssignments = document.getElementById('numAssignments');
 const numProjects = document.getElementById('numProjects');
 const numClassTests = document.getElementById('numClassTests');
 const numSemTests = document.getElementById('numSemTests');
-
-// Results display elements
 const resultsDiv = document.getElementById('results');
 const resultsDisplay = document.getElementById('resultsDisplay');
-
-// Calculate button (note the ID changed from 'calculateBtn' to 'calculate')
 const calculateBtn = document.getElementById('calculate');
 
+
 function clearAllTestInputs() {
-  if (selectedQuizzes) selectedQuizzes.innerHTML = '';
-  if (selectedAssignments) selectedAssignments.innerHTML = '';
-  if (selectedProjects) selectedProjects.innerHTML = '';
-  if (selectedClassTests) selectedClassTests.innerHTML = '';
-  if (selectedSemesterTests) selectedSemesterTests.innerHTML = '';
-
-  if (numQuizzes) numQuizzes.textContent = '0';
-  if (numAssignments) numAssignments.textContent = '0';
-  if (numProjects) numProjects.textContent = '0';
-  if (numClassTests) numClassTests.textContent = '0';
-  if (numSemTests) numSemTests.textContent = '0';
-
-  if (resultsDiv) resultsDiv.style.display = 'none';
-  if (resultsDisplay) resultsDisplay.textContent = '';
+  selectedQuizzes.innerHTML = '';
+  selectedAssignments.innerHTML = '';
+  selectedProjects.innerHTML = '';
+  selectedClassTests.innerHTML = '';
+  selectedSemesterTests.innerHTML = '';
+  numQuizzes.textContent = '0';
+  numAssignments.textContent = '0';
+  numProjects.textContent = '0';
+  numClassTests.textContent = '0';
+  numSemTests.textContent = '0';
+  resultsDiv.style.display = 'none';
+  resultsDisplay.textContent = '';
 }
 
 function createTestInputRow(type, i, weightText = '', weightValue = 0) {
   return `
     <div class="AddedTestInputs">
       <label>${type} ${i + 1}</label>
-      <input class="markInputs" type="number" data-weight="${weightValue}" size="1" min="0" max="100">
-      ${weightText ? `<span class="weightDisplay">Weight: ${weightText}%</span>` : ''}
+      <input class="markInputs" type="number" data-weight="${weightValue}" size="1" min="0" max="100" step="1">
+      ${weightText ? `<span class="weightDisplay">Weight: ${weightText}%</span>` : ''} 
     </div>`;
 }
 
@@ -58,7 +61,6 @@ async function populateModules() {
   try {
     const querySnapshot = await getDocs(moduleRef);
     moduleSelect.innerHTML = '<option value="" disabled selected>Select a module</option>';
-
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       const moduleName = data['module-name'] || doc.id;
@@ -75,14 +77,11 @@ async function populateModules() {
 moduleSelect.addEventListener('change', async (e) => {
   const selectedModuleId = e.target.value;
   clearAllTestInputs();
-
   try {
     const querySnapshot = await getDocs(moduleRef);
     const doc = querySnapshot.docs.find(d => d.id === selectedModuleId);
     if (!doc) return;
-
     const data = doc.data();
-
     const groups = [
       { type: 'Quiz', count: Number(data.quzzes || 0), weights: parseWeights(data['quiz-weights']), element: selectedQuizzes, counter: numQuizzes },
       { type: 'Assignment', count: Number(data.assignments || 0), weights: parseWeights(data['assignment-weights']), element: selectedAssignments, counter: numAssignments },
@@ -90,7 +89,6 @@ moduleSelect.addEventListener('change', async (e) => {
       { type: 'Class test', count: Number(data['class-tests'] || 0), weights: parseWeights(data['class-test-weights']), element: selectedClassTests, counter: numClassTests },
       { type: 'Semester test', count: Number(data['semester-tests'] || 0), weights: parseWeights(data['semester-test-weights']), element: selectedSemesterTests, counter: numSemTests },
     ];
-
     for (const group of groups) {
       const { type, count, weights, element, counter } = group;
       if (count > 0 && element) {
@@ -106,7 +104,6 @@ moduleSelect.addEventListener('change', async (e) => {
   }
 });
 
-// Calculate button handler
 calculateBtn.addEventListener('click', async () => {
   const selectedModuleId = moduleSelect.value;
   if (!selectedModuleId) {
@@ -117,92 +114,189 @@ calculateBtn.addEventListener('click', async () => {
   const allInputs = document.querySelectorAll('.markInputs');
   let totalWeightDone = 0;
   let weightedScore = 0;
-
   allInputs.forEach(inp => {
-    const mark = parseFloat(inp.value);
+    const mark = parseInt(inp.value);
     const weight = parseFloat(inp.getAttribute('data-weight'));
-
     if (!isNaN(mark) && !isNaN(weight)) {
       totalWeightDone += weight;
       weightedScore += (mark / 100) * weight;
     }
   });
 
-  const currentPredicate = weightedScore;
-  document.querySelector('.PredicateCalculator').remove();
-  // Display results
-  if (resultsDiv && resultsDisplay) {
-    resultsDiv.style.display = 'block';
-    resultsDisplay.innerHTML = `
-      <h3>Calculated Predicate for Module "${moduleSelect.selectedOptions[0].textContent}"</h3>
-      <p>Weighted Score: ${currentPredicate.toFixed(2)}%</p>
-      <p>Total Weight Completed: ${totalWeightDone}%</p>
-    `;
-  }
-
-  // Optionally update Firestore with results
+  const currentPredicate = (weightedScore * 100 / totalWeightDone);
   try {
-    await updateDoc(docRef(moduleRef, selectedModuleId), {
-      'completed-work-weight': totalWeightDone,
-      'current-predicate': currentPredicate
+    const user = auth.currentUser;
+    
+    if (!user) throw new Error('User not authenticated');
+    const q = query(studentRef, where('student-email', '==', user.email));
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) throw new Error('No student document found');
+    const studentDocSnap = querySnapshot.docs[0];
+    const studentDocId = studentDocSnap.id;
+    const studentDoc = docRef(studentRef, studentDocId);
+    let currentModules = studentDocSnap.data().modules || '';
+    const modulesArray = currentModules.split(':').map(m => m.trim()).filter(m => m);
+    let found = false;
+    const updatedArray = modulesArray.map(m => {
+      if (m.startsWith(`${selectedModuleId}(`)) {
+        found = true;
+        const match = m.match(/\((\d+\.?\d*),\s*(yes|no),\s*(bad|good|excellent)\)/i);
+        let consultationNeeded = "no";
+        let performance = "good";
+        if (currentPredicate < 50) {
+          consultationNeeded = "yes";
+          performance = "bad";
+        } else if (currentPredicate >= 75) {
+          performance = "excellent";
+        }
+        return `${selectedModuleId}(${(currentPredicate.toFixed(2) / 100) * totalWeightDone}, ${consultationNeeded}, ${performance})`;
+      }
+      return m;
     });
-  } catch (err) {
-    console.error('Failed to update predicate:', err);
-  }
-});
-document.querySelector('.resultButtons .homeButton:nth-child(1)').addEventListener('click', () => {
-  document.querySelector('#results').style.display = 'none';
-  document.querySelector('.PredicateCalculator').style.display = 'block';
+    if (!found) {
+      updatedArray.push(`${selectedModuleId}(${currentPredicate.toFixed(2)}, yes, good)`);
+    }
+    const updatedModuleString = updatedArray.join(':');
+    await updateDoc(studentDoc, {
+      modules: updatedModuleString
+    });
 
-  document.querySelector('#moduleSelect').selectedIndex = 0;
-  document.querySelector('#numQuizzes').textContent = '0';
-  document.querySelector('#numClassTests').textContent = '0';
-  document.querySelector('#numAssignments').textContent = '0';
-  document.querySelector('#numProjects').textContent = '0';
-  document.querySelector('#numSemTests').textContent = '0';
+    document.querySelector('.PredicateCalculator').style.display = 'none';
+    resultsDiv.style.display = 'block';
+    const resultsContainer = resultsDisplay;
+    resultsContainer.innerHTML = 'Loading...';
 
-  document.querySelector('#selectedQuizzes').innerHTML = '';
-  document.querySelector('#selectedClassTests').innerHTML = '';
-  document.querySelector('#selectedAssignments').innerHTML = '';
-  document.querySelector('#selectedProjects').innerHTML = '';
-  document.querySelector('#selectedSemTests').innerHTML = '';
-  document.querySelector('#resultsDisplay').innerHTML = '';
-});
-
-document.querySelector('.resultButtons .homeButton:nth-child(2)').addEventListener('click', () => {
-  document.querySelector('#results').style.display = 'none';
-  document.querySelector('.PredicateCalculator').style.display = 'block';
-});
-document.querySelector('#view').addEventListener('click', async () => {
-  document.querySelector('.PredicateCalculator').style.display = 'none';
-  document.querySelector('#results').style.display = 'block';
-
-  const resultsContainer = document.querySelector('#resultsDisplay');
-  resultsContainer.innerHTML = 'Loading...';
-
-  try {
-    const snapshot = await getDocs(moduleRef);
-
-    if (snapshot.empty) {
-      resultsContainer.innerHTML = 'No modules found.';
+    const studentSnapshot = await getDocs(query(studentRef, where('student-email', '==', user.email)));
+    
+    if (studentSnapshot.empty) {
+      resultsContainer.innerHTML = 'Student document not found.';
       return;
     }
-
+    const updatedStudentData = studentSnapshot.docs[0].data();
+    const enrolledModulesString = updatedStudentData.modules || "";
+    const enrolledModules = enrolledModulesString.split(":").filter(Boolean);
+    if (enrolledModules.length === 0) {
+      resultsContainer.innerHTML = '<p>No modules found.</p>';
+      return;
+    }
+    const moduleSnapshot = await getDocs(moduleRef);
     let resultsHTML = '';
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const moduleName = data["module-name"] || "Unnamed Module";
-      const predicate = data["current-predicate"] || 0;
-      resultsHTML += `${moduleName}: ${predicate}%<br>`;
+    enrolledModules.forEach((studentModuleEntry) => {
+      const match = studentModuleEntry.match(/^([^()]+)\((\d+\.?\d*),\s*(yes|no),\s*(bad|good|excellent)\)$/i);
+      if (!match) return;
+      const moduleId = match[1];
+      const predicate = parseFloat(match[2]);
+      const consultation = match[3];
+      const performance = match[4];
+      const moduleDoc = moduleSnapshot.docs.find(doc => doc.id === moduleId);
+      if (!moduleDoc) return;
+      const moduleData = moduleDoc.data();
+      const moduleName = moduleData['module-name'];
+      const workDone = moduleId === selectedModuleId ? totalWeightDone.toFixed(2) + '%' : 'Not Available';
+      resultsHTML += `
+        <div class="module-predicate">
+          <h4>${moduleName}</h4>
+          <p>Predicate: ${predicate.toFixed(2)}%</p>
+          <p>Work Done: ${workDone}</p>
+          <p>Consultation Needed: ${consultation}</p>
+          <p>Performance: ${performance}</p>
+        </div>`;
     });
     resultsContainer.innerHTML = resultsHTML;
 
-  } catch (error) {
-    console.error("Error fetching module data:", error);
-    resultsContainer.innerHTML = 'Failed to load results.';
+  } catch (err) {
+    console.error('Failed to store or display predicate:', err);
   }
 });
 
+document.querySelector('.resultButtons .homeButton:nth-child(1)').addEventListener('click', () => {
+  resultsDiv.style.display = 'none';
+  document.querySelector('.PredicateCalculator').style.display = 'block';
+  moduleSelect.selectedIndex = 0;
+  numQuizzes.textContent = '0';
+  numClassTests.textContent = '0';
+  numAssignments.textContent = '0';
+  numProjects.textContent = '0';
+  numSemTests.textContent = '0';
+  selectedQuizzes.innerHTML = '';
+  selectedClassTests.innerHTML = '';
+  selectedAssignments.innerHTML = '';
+  selectedProjects.innerHTML = '';
+  selectedSemesterTests.innerHTML = '';
+  resultsDisplay.innerHTML = '';
+});
 
+document.querySelector('.resultButtons .homeButton:nth-child(2)').addEventListener('click', () => {
+  resultsDiv.style.display = 'none';
+  document.querySelector('.PredicateCalculator').style.display = 'block';
+});
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const userEmail = user.email;
+    const studentQuery = query(studentRef, where("student-email", "==", userEmail));
+    const studentSnapshot = await getDocs(studentQuery);
+    const studentDoc = studentSnapshot.docs[0];
+    const studentData = studentDoc.data();
+    
+    document.getElementById('student-names').textContent = `${studentData.name} ${studentData.surname}`;
+  } else {
+    console.error("User not signed in.");
+  }
+});
+
+document.querySelector('#view').addEventListener('click', async () => {
+  document.querySelector('.PredicateCalculator').style.display = 'none';
+  resultsDiv.style.display = 'block';
+  const resultsContainer = resultsDisplay;
+  resultsContainer.innerHTML = 'Loading...';
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      resultsContainer.innerHTML = 'No user signed in.';
+      return;
+    }
+    const studentQuery = query(studentRef, where('student-email', '==', user.email));
+    const studentSnapshot = await getDocs(studentQuery);
+    if (studentSnapshot.empty) {
+      resultsContainer.innerHTML = 'Student document not found.';
+      return;
+    }
+    const studentDocSnap = studentSnapshot.docs[0];
+    const studentData = studentDocSnap.data();
+    const enrolledModulesString = studentData.modules || "";
+    const enrolledModules = enrolledModulesString.split(":").filter(Boolean);
+    if (enrolledModules.length === 0) {
+      resultsContainer.innerHTML = '<p>No modules found.</p>';
+      return;
+    }
+    const moduleSnapshot = await getDocs(moduleRef);
+    let resultsHTML = '';
+    enrolledModules.forEach((studentModuleEntry) => {
+      const match = studentModuleEntry.match(/^([^()]+)\((\d+\.?\d*),\s*(yes|no),\s*(bad|good|excellent)\)$/i);
+      if (!match) return;
+      const moduleId = match[1];
+      const predicate = parseFloat(match[2]);
+      const consultation = match[3];
+      const performance = match[4];
+      const moduleDoc = moduleSnapshot.docs.find(doc => doc.id === moduleId);
+      if (!moduleDoc) return;
+      const moduleData = moduleDoc.data();
+      const moduleName = moduleData['module-name'];
+      const workDone = moduleData['completed-work-weight'];
+      resultsHTML += `
+        <div class="module-predicate">
+          <h4>${moduleName}</h4>
+          <p>Predicate: ${predicate.toFixed(2)}%</p>
+          <p>Work Done: ${workDone}%</p>
+          <p>Consultation Needed: ${consultation}</p>
+          <p>Performance: ${performance}</p>
+        </div>`;
+    });
+    resultsContainer.innerHTML = resultsHTML;
+  } catch (err) {
+    console.error('Failed to view predicate results:', err);
+    resultsContainer.innerHTML = 'An error occurred while fetching predicate data.';
+  }
+});
 
 populateModules();
